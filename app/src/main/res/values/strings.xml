@@ -1,0 +1,27 @@
+<resources>
+
+    <string name="app_name">PopularMoviesST1</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="action_share">Share</string>
+
+    <string name="action_refresh" translatable="false">Refresh</string>
+    <string name="title_activity_detail">Details</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="pref_orders_label">Order by</string>
+    <string name="pref_units_label_popularity_desc">Popularity descending</string>
+    <string name="pref_units_label_vote_average_desc">Vote average desdending</string>
+    <string name="pref_orders_key" translatable="false">orderby</string>
+    <string name="pref_popularity_desc" translatable="false">popularity.desc</string>
+    <string name="pref_order_default" translatable="false">popularity.desc</string>
+    <string name="pref_vote_average_desc" translatable="false">vote_average.desc</string>
+    <string name="movie_poster">MOVIE_POSTER</string>
+    <string name="no_synopsis_found">Synopsis not found</string>
+    <string name="no_title_found">Title not found</string>
+    <string name="no_date_found">Date not found</string>
+    <string name="no_average_found">Vote average not found</string>
+    <string name="description_movie_poster">Contains poster of movie</string>
+    <string name="mark_as_favorite">MARK AS FAVORITE</string>
+
+</resources>
