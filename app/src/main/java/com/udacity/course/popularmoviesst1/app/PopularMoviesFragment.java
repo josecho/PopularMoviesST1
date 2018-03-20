@@ -97,18 +97,10 @@ public class PopularMoviesFragment extends Fragment {
             FetchMoviePosterTask fetchMoviePosterTask = new FetchMoviePosterTask();
             SharedPreferences sharedPrefs =
                     PreferenceManager.getDefaultSharedPreferences(getActivity());
-
             String orderBy = sharedPrefs.getString(
                     getString(R.string.pref_orders_key),
                     getString(R.string.pref_order_default));
-
-            Log.e(LOG_TAG, orderBy);
-            Log.e(LOG_TAG, orderBy);
-            Log.e(LOG_TAG, orderBy);
             fetchMoviePosterTask.execute(orderBy);
-
-
-
         }else{
             Toast.makeText(getActivity(), INTERNET_CONNECTION_NOT_PRESENT, Toast.LENGTH_LONG).show();
         }
@@ -196,10 +188,6 @@ public class PopularMoviesFragment extends Fragment {
                         .appendQueryParameter(API_KEY_PARAM, BuildConfig.OPEN_MOVIE_POSTER_API_KEY)
                         .build();
                 URL url = new URL(builtUri.toString());
-                Log.e(LOG_TAG, url.toString());
-                Log.e(LOG_TAG, url.toString());
-                Log.e(LOG_TAG, url.toString());
-                Log.e(LOG_TAG, url.toString());
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod(GET);
                 urlConnection.connect();
