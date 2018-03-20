@@ -97,10 +97,18 @@ public class PopularMoviesFragment extends Fragment {
             FetchMoviePosterTask fetchMoviePosterTask = new FetchMoviePosterTask();
             SharedPreferences sharedPrefs =
                     PreferenceManager.getDefaultSharedPreferences(getActivity());
+
             String orderBy = sharedPrefs.getString(
                     getString(R.string.pref_orders_key),
                     getString(R.string.pref_order_default));
+
+            Log.e(LOG_TAG, orderBy);
+            Log.e(LOG_TAG, orderBy);
+            Log.e(LOG_TAG, orderBy);
             fetchMoviePosterTask.execute(orderBy);
+
+
+
         }else{
             Toast.makeText(getActivity(), INTERNET_CONNECTION_NOT_PRESENT, Toast.LENGTH_LONG).show();
         }
@@ -127,15 +135,6 @@ public class PopularMoviesFragment extends Fragment {
 
     public class FetchMoviePosterTask extends AsyncTask<String, Void, MoviePoster[]> {
 
-        private static final String RESULTS = "results";
-        private static final String ORIGINAL_TITLE = "original_title";
-        private static final String POSTER_PATH = "poster_path";
-        private static final String OVERVIEW = "overview";
-        private static final String VOTE_AVERAGE = "vote_average";
-        private static final String RELEASE_DATE = "release_date";
-        private static final String HTTPS_API_THEMOVIEDB_ORG_3_DISCOVER_MOVIE = "https://api.themoviedb.org/3/discover/movie?";
-        private static final String SORT_BY = "sort_by";
-        private static final String API_KEY = "api_key";
         private static final String GET = "GET";
         private static final String MOVIE_POSTER_STRING = "MoviePoster string: ";
         private static final String ERROR = "Error ";
@@ -153,15 +152,15 @@ public class PopularMoviesFragment extends Fragment {
                 throws JSONException {
 
             // These are the names of the JSON objects that need to be extracted.
-            final String TAG_RESULTS = RESULTS;
-            final String TAG_ORIGINAL_TITLE = ORIGINAL_TITLE;
+            final String TAG_RESULTS = "results";
+            final String TAG_ORIGINAL_TITLE = "original_title";
             //movie poster image thumbnail
-            final String TAG_POSTER_PATH = POSTER_PATH;
+            final String TAG_POSTER_PATH = "poster_path";
             //A plot synopsis (called overview in the api)
-            final String TAG_OVERVIEW = OVERVIEW;
+            final String TAG_OVERVIEW = "overview";
             //user rating (called vote_average in the api)
-            final String TAG_VOTE_AVERAGE = VOTE_AVERAGE;
-            final String TAG_RELEASE_DATE = RELEASE_DATE;
+            final String TAG_VOTE_AVERAGE = "vote_average";
+            final String TAG_RELEASE_DATE = "release_date";
 
 
             JSONObject moviePosterJson = new JSONObject(moviesJsonStr);
@@ -189,15 +188,18 @@ public class PopularMoviesFragment extends Fragment {
             BufferedReader reader = null;
             String moviePosterJsonStr;
             try {
-                final String MOVIE_POSTER_BASE_URL = HTTPS_API_THEMOVIEDB_ORG_3_DISCOVER_MOVIE;
-                final String SORT_BY_PARAM = SORT_BY;
-                final String API_KEY_PARAM = API_KEY;
-
-                Uri builtUri = Uri.parse(MOVIE_POSTER_BASE_URL).buildUpon()
-                        .appendQueryParameter(SORT_BY_PARAM, params[0])
+                final String MOVIE_POSTER_BASE_URL = "https://api.themoviedb.org/3/movie/";
+                final String QUESTION_MARK = "?";
+                final String API_KEY_PARAM = "api_key";
+                final String URL = MOVIE_POSTER_BASE_URL +  params[0] + QUESTION_MARK;
+                Uri builtUri = Uri.parse(URL).buildUpon()
                         .appendQueryParameter(API_KEY_PARAM, BuildConfig.OPEN_MOVIE_POSTER_API_KEY)
                         .build();
                 URL url = new URL(builtUri.toString());
+                Log.e(LOG_TAG, url.toString());
+                Log.e(LOG_TAG, url.toString());
+                Log.e(LOG_TAG, url.toString());
+                Log.e(LOG_TAG, url.toString());
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod(GET);
                 urlConnection.connect();
