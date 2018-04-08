@@ -1,7 +1,10 @@
-package com.udacity.course.popularmoviesst1.app;
+package com.udacity.course.popularmoviesst1.app.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MoviePoster implements Parcelable {
 
@@ -14,11 +17,31 @@ public class MoviePoster implements Parcelable {
     private static final String VOTE_AVERAGE = ", voteAverage=";
     private static final String RELEASE_DATE = ", releaseDate='";
     private static final String STRING = "}";
+
+    private Integer moviePosterId;
     private String originalTitle;
     private String posterPath;
     private String overview;
     private Double voteAverage;
     private String releaseDate;
+    private List<Review> reviews = new ArrayList<Review>();
+    private List<Video> videos = new ArrayList<Video>();
+
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(Review review) {
+        this.reviews= reviews;
+    }
+
+    public List<Video> getTrailer() {
+        return videos;
+    }
+
+    public void setTrailer(List<Video> videos) {
+        this.videos = videos;
+    }
 
     public MoviePoster() {
 
@@ -33,6 +56,14 @@ public class MoviePoster implements Parcelable {
                 VOTE_AVERAGE + voteAverage +
                 RELEASE_DATE + releaseDate + '\'' +
                 STRING;
+    }
+
+    public Integer getMoviePosterId() {
+        return moviePosterId;
+    }
+
+    public void setMoviePosterId(Integer moviePosterId) {
+        this.moviePosterId = moviePosterId;
     }
 
     public String getOriginalTitle() {
@@ -80,6 +111,7 @@ public class MoviePoster implements Parcelable {
     }*/
 
     private MoviePoster(Parcel in){
+        moviePosterId = in.readInt();
         originalTitle = in.readString();
         posterPath = in.readString();
         overview = in.readString();
@@ -95,11 +127,14 @@ public class MoviePoster implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(moviePosterId);
         parcel.writeString(originalTitle);
         parcel.writeString(posterPath);
         parcel.writeString(overview);
         parcel.writeValue(voteAverage);
         parcel.writeString(releaseDate);
+        parcel.writeList(reviews);
+        parcel.writeList(videos);
     }
 
     public static final Parcelable.Creator<MoviePoster> CREATOR = new Parcelable.Creator<MoviePoster>() {

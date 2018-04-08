@@ -8,6 +8,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
+import com.udacity.course.popularmoviesst1.app.model.MoviePoster;
 
 
 class ImageAdapter extends BaseAdapter {

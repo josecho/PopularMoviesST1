@@ -16,12 +16,16 @@
 
 package com.udacity.course.popularmoviesst1.app;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,10 +36,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.linearlistview.LinearListView;
 import com.squareup.picasso.Picasso;
+import com.udacity.course.popularmoviesst1.app.adapter.VideoAdapter;
+import com.udacity.course.popularmoviesst1.app.model.MoviePoster;
+import com.udacity.course.popularmoviesst1.app.model.Video;
+
+import java.util.ArrayList;
 
 public class DetailActivity extends AppCompatActivity {
+
+    private static final String INTERNET_CONNECTION_NOT_PRESENT = "Internet Connection Not Present";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +92,11 @@ public class DetailActivity extends AppCompatActivity {
 
         private static final String MOVIE_POSTER_SHARE_HASHTAG = " #MoviePosterApp";
         MoviePoster moviePoster;
+
+
+        private LinearListView linListViewVideos;
+        private VideoAdapter videoAdapter;
+        private CardView cardViewVideos;;
 
         public DetailFragment() {
             setHasOptionsMenu(true);
@@ -128,6 +147,10 @@ public class DetailActivity extends AppCompatActivity {
                     tvVoteAverage.setText(moviePoster.getVoteAverage());
                 }
 
+                linListViewVideos = (LinearListView) rootView.findViewById(R.id.detail_videos);
+                cardViewVideos = (CardView) rootView.findViewById(R.id.detail_videos_youtube);
+                videoAdapter = new VideoAdapter(getActivity(), new ArrayList<Video>());
+                linListViewVideos.setAdapter(videoAdapter);
             }
 
             return rootView;
@@ -162,5 +185,35 @@ public class DetailActivity extends AppCompatActivity {
                     moviePoster.toString() + MOVIE_POSTER_SHARE_HASHTAG);
             return shareIntent;
         }
+
+        @Override
+        public void onStart() {
+            super.onStart();
+            updateVideos();
+        }
+
+        private void updateVideos() {
+            if (isNetworkAvailable()) {
+                FetchVideosTask fetchVideosTask = new FetchVideosTask(getActivity(),videoAdapter,cardViewVideos);
+                fetchVideosTask.execute(moviePoster.getMoviePosterId());
+            }else{
+                Toast.makeText(getActivity(), INTERNET_CONNECTION_NOT_PRESENT, Toast.LENGTH_LONG).show();
+            }
+        }
+
+        //https://stackoverflow.com/questions/1560788/how-to-check-internet-access-on-android-inetaddress-never-times-out
+        private boolean isNetworkAvailable() {
+            try {
+                ConnectivityManager connectivityManager
+                        = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+                return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+            } catch (NullPointerException nullPointer) {
+                Log.e(LOG_TAG, INTERNET_CONNECTION_NOT_PRESENT, nullPointer);
+                return false;
+            }
+        }
+
+
     }
 }
