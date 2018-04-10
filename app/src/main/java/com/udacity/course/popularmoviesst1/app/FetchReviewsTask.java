@@ -8,8 +8,8 @@ import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
 
-import com.udacity.course.popularmoviesst1.app.adapter.VideoAdapter;
-import com.udacity.course.popularmoviesst1.app.model.Video;
+import com.udacity.course.popularmoviesst1.app.adapter.ReviewAdapter;
+import com.udacity.course.popularmoviesst1.app.model.Review;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,37 +25,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by josecho on 4/8/18.
+ * Created by josecho on 4/10/18.
  */
 
-class FetchVideosTask extends AsyncTask<Integer, Void, List<Video>> {
+class FetchReviewsTask extends AsyncTask<Integer, Void, List<Review>>{
 
     private static final String GET = "GET";
-    private static final String VIDEOS_STRING = "VIDEOS string: ";
+    private static final String VIDEOS_STRING = "REVIEWS string: ";
     private static final String ERROR = "Error ";
     private static final String ERROR_CLOSING_STREAM = "Error closing stream";
-    private static final String VIDEO_PLATFORM = "YouTube";
-    private final String LOG_TAG = FetchMoviePosterTask.class.getSimpleName();
+    private final String LOG_TAG = FetchReviewsTask.class.getSimpleName();
 
     private final Context mContext;
-    private final VideoAdapter videoAdapter;
+    private final ReviewAdapter reviewAdapter;
 
-    public FetchVideosTask(Context context,VideoAdapter videoAdapter) {
+    public FetchReviewsTask(Context context, ReviewAdapter reviewAdapter) {
         this.mContext = context;
-        this.videoAdapter = videoAdapter;
+        this.reviewAdapter = reviewAdapter;
     }
 
     @Override
-    protected List<Video> doInBackground(Integer... params) {
+    protected List<Review> doInBackground(Integer... params) {
         if (params.length == 0) {
             return null;
         }
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
-        String videosJsonStr;
-        Integer idPopularMovie = params[0];
+        String reviesJsonStr;
+        Integer idReview = params[0];
         try {
-            final String VIDEOS_BASE_URL = "https://api.themoviedb.org/3/movie/" + idPopularMovie + "/videos";
+            final String VIDEOS_BASE_URL = "http://api.themoviedb.org/3/movie/" + idReview + "/reviews";
             final String QUESTION_MARK = "?";
             final String API_KEY_PARAM = "api_key";
             final String URL = VIDEOS_BASE_URL + QUESTION_MARK;
@@ -79,8 +78,8 @@ class FetchVideosTask extends AsyncTask<Integer, Void, List<Video>> {
             if (stringBuilder.length() == 0) {
                 return null;
             }
-            videosJsonStr = stringBuilder.toString();
-            Log.v(LOG_TAG, VIDEOS_STRING + videosJsonStr);
+            reviesJsonStr = stringBuilder.toString();
+            Log.v(LOG_TAG, VIDEOS_STRING + reviesJsonStr);
 
 
         } catch (IOException e) {
@@ -100,7 +99,7 @@ class FetchVideosTask extends AsyncTask<Integer, Void, List<Video>> {
         }
 
         try {
-            return getVideosDataFromJson(videosJsonStr);
+            return getReviewsDataFromJson(reviesJsonStr);
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
@@ -115,58 +114,49 @@ class FetchVideosTask extends AsyncTask<Integer, Void, List<Video>> {
      * Fortunately parsing is easy:  constructor takes the JSON string and converts it
      * into an Object hierarchy for us.
      */
-    private List<Video> getVideosDataFromJson(String videosJsonStr)
+    private List<Review> getReviewsDataFromJson(String reviesJsonStr)
             throws JSONException {
 
         final String TAG_RESULTS = "results";
-        final String TAG_VIDEO_ID = "id";
-        final String TAG_iso_639_1 = "iso_639_1";
-        final String TAG_iso_3166_1 = "iso_3166_1";
-        final String TAG_KEY = "key";
-        final String TAG_NAME = "name";
-        final String TAG_SITE = "site";
-        final String TAG_SIZE = "size";
-        final String TAG_TYPE = "type";
+        final String TAG_REVIEW_ID = "id";
+        final String TAG_AUTOR = "author";
+        final String TAG_CONTENT = "content";
+        final String TAG_URL = "url";
 
-
-        JSONObject videoJson = new JSONObject(videosJsonStr);
-        JSONArray videoJsonArray = videoJson.optJSONArray(TAG_RESULTS);
-        List<Video> videos = new ArrayList<>();
-        for (int i = 0; i < videoJsonArray.length(); i++) {
-            Video video = new Video();
-            JSONObject videoInfo = videoJsonArray.optJSONObject(i);
-            if(videoInfo.getString(TAG_SITE).equals(VIDEO_PLATFORM)){
-                video.setId(videoInfo.getString(TAG_VIDEO_ID));
-                video.setIso_639_1(videoInfo.getString(TAG_iso_639_1));
-                video.setIso_3166_1(videoInfo.getString(TAG_iso_3166_1));
-                video.setKey(videoInfo.getString(TAG_KEY));
-                video.setName(videoInfo.getString(TAG_NAME));
-                video.setSite(videoInfo.getString(TAG_SITE));
-                video.setSize(videoInfo.getString(TAG_SIZE));
-                video.setType(videoInfo.getString(TAG_TYPE));
-                videos.add(video);
-            }
+        JSONObject reviewJson = new JSONObject(reviesJsonStr);
+        JSONArray reviewJsonArray = reviewJson.optJSONArray(TAG_RESULTS);
+        List<Review> reviews = new ArrayList<>();
+        for (int i = 0; i < reviewJsonArray.length(); i++) {
+            Review review = new Review();
+            JSONObject reviewInfo = reviewJsonArray.optJSONObject(i);
+                review.setId(reviewInfo.getString(TAG_REVIEW_ID));
+                review.setAuthor(reviewInfo.getString(TAG_AUTOR));
+                review.setContent(reviewInfo.getString(TAG_CONTENT));
+                review.setUrl(reviewInfo.getString(TAG_URL));
+                reviews.add(review);
         }
-        return videos;
+        return reviews;
     }
 
 
     @Override
-    protected void onPostExecute(List<Video> result) {
+    protected void onPostExecute(List<Review> result) {
         if (result != null) {
             if (result.size() > 0) {
                 View rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
-                CardView cardViewReview = rootView.findViewById(R.id.detail_video_youtube);
+                CardView cardViewReview = rootView.findViewById(R.id.detail_review);
                 cardViewReview.setVisibility(View.VISIBLE);
-                if (videoAdapter != null) {
-                    videoAdapter.clear();
-                    for (Video video : result) {
-                        videoAdapter.add(video);
+                if (reviewAdapter != null) {
+                    reviewAdapter.clear();
+                    for (Review review : result) {
+                        reviewAdapter.add(review);
                     }
                 }
             }
         }
     }
+
+
 
 
 }

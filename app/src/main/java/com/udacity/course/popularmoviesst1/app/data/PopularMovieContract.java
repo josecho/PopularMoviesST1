@@ -20,7 +20,7 @@ import android.provider.BaseColumns;
 /**
  * Defines table and column names for the weather database.
  */
-public class PopularMovieContract {
+class PopularMovieContract {
 
     /* Inner class that defines the table contents of the popular movie table */
     public static final class PopularMovieEntry implements BaseColumns {

@@ -40,8 +40,10 @@ import android.widget.Toast;
 
 import com.linearlistview.LinearListView;
 import com.squareup.picasso.Picasso;
-import com.udacity.course.popularmoviesst1.app.adapter.VideoAdapter;
 import com.udacity.course.popularmoviesst1.app.model.MoviePoster;
+import com.udacity.course.popularmoviesst1.app.adapter.ReviewAdapter;
+import com.udacity.course.popularmoviesst1.app.adapter.VideoAdapter;
+import com.udacity.course.popularmoviesst1.app.model.Review;
 import com.udacity.course.popularmoviesst1.app.model.Video;
 
 import java.util.ArrayList;
@@ -49,7 +51,6 @@ import java.util.ArrayList;
 public class DetailActivity extends AppCompatActivity {
 
     private static final String INTERNET_CONNECTION_NOT_PRESENT = "Internet Connection Not Present";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,12 +92,17 @@ public class DetailActivity extends AppCompatActivity {
         private static final String LOG_TAG = DetailFragment.class.getSimpleName();
 
         private static final String MOVIE_POSTER_SHARE_HASHTAG = " #MoviePosterApp";
-        MoviePoster moviePoster;
 
+        MoviePoster moviePoster;
 
         private LinearListView linListViewVideos;
         private VideoAdapter videoAdapter;
-        private CardView cardViewVideos;;
+        private CardView cardViewVideos;
+
+        private LinearListView linListViewReviews;
+        private ReviewAdapter reviewAdapter;
+        private CardView cardViewReviews;
+
 
         public DetailFragment() {
             setHasOptionsMenu(true);
@@ -147,12 +153,16 @@ public class DetailActivity extends AppCompatActivity {
                     tvVoteAverage.setText(moviePoster.getVoteAverage());
                 }
 
-                linListViewVideos = (LinearListView) rootView.findViewById(R.id.detail_videos);
-                cardViewVideos = (CardView) rootView.findViewById(R.id.detail_videos_youtube);
+                linListViewVideos = rootView.findViewById(R.id.detail_videos);
+                cardViewVideos = rootView.findViewById(R.id.detail_video_youtube);
                 videoAdapter = new VideoAdapter(getActivity(), new ArrayList<Video>());
                 linListViewVideos.setAdapter(videoAdapter);
-            }
 
+                linListViewReviews = rootView.findViewById(R.id.detail_reviews);
+                cardViewReviews = rootView.findViewById(R.id.detail_review);
+                reviewAdapter = new ReviewAdapter(getActivity(), new ArrayList<Review>());
+                linListViewReviews.setAdapter(reviewAdapter);
+            }
             return rootView;
         }
 
@@ -186,6 +196,7 @@ public class DetailActivity extends AppCompatActivity {
             return shareIntent;
         }
 
+
         @Override
         public void onStart() {
             super.onStart();
@@ -194,8 +205,11 @@ public class DetailActivity extends AppCompatActivity {
 
         private void updateVideos() {
             if (isNetworkAvailable()) {
-                FetchVideosTask fetchVideosTask = new FetchVideosTask(getActivity(),videoAdapter,cardViewVideos);
+                FetchVideosTask fetchVideosTask = new FetchVideosTask(getActivity(),videoAdapter);
                 fetchVideosTask.execute(moviePoster.getMoviePosterId());
+                FetchReviewsTask fetchReviewsTask = new FetchReviewsTask(getActivity(),reviewAdapter);
+                fetchReviewsTask.execute(moviePoster.getMoviePosterId());
+
             }else{
                 Toast.makeText(getActivity(), INTERNET_CONNECTION_NOT_PRESENT, Toast.LENGTH_LONG).show();
             }

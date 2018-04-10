@@ -34,7 +34,7 @@ public class VideoAdapter extends BaseAdapter {
         videos = objects;
     }
 
-    public Context getContext() {
+    private Context getContext() {
         return vAContext;
     }
 
@@ -90,8 +90,8 @@ public class VideoAdapter extends BaseAdapter {
         public final TextView nameView;
 
         public ViewHolder(View view) {
-            imageView = (ImageView) view.findViewById(R.id.video_image);
-            nameView = (TextView) view.findViewById(R.id.video_name);
+            imageView = view.findViewById(R.id.video_image);
+            nameView = view.findViewById(R.id.video_name);
         }
     }
 

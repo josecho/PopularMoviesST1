@@ -35,7 +35,7 @@ public class TestDb extends AndroidTestCase {
     }
 
     // Since we want each test to start with a clean slate
-    void deleteTheDatabase() {
+    private void deleteTheDatabase() {
         mContext.deleteDatabase(PopularMovieDbHelper.DATABASE_NAME);
     }
 
@@ -43,7 +43,7 @@ public class TestDb extends AndroidTestCase {
         // build a HashSet of all of the table names we wish to look for
         // Note that there will be another table in the DB that stores the
         // Android metadata (db version information)
-        final HashSet<String> tableNameHashSet = new HashSet<String>();
+        final HashSet<String> tableNameHashSet = new HashSet<>();
         tableNameHashSet.add(PopularMovieContract.PopularMovieEntry.TABLE_NAME);
         tableNameHashSet.add(PopularMovieContract.VideosEntry.TABLE_NAME);
         tableNameHashSet.add(PopularMovieContract.ReviewsEntry.TABLE_NAME);
@@ -80,7 +80,7 @@ public class TestDb extends AndroidTestCase {
         assertTrue("Error: This means that we were unable to query the database for table information.",
                 c.moveToFirst());
         // Build a HashSet of all of the column names we want to look for
-        final HashSet<String> popularMovieColumnHashSet = new HashSet<String>();
+        final HashSet<String> popularMovieColumnHashSet = new HashSet<>();
         popularMovieColumnHashSet.add(PopularMovieContract.PopularMovieEntry._ID);
         popularMovieColumnHashSet.add(PopularMovieContract.PopularMovieEntry.COLUMN_POPULAR_MOVIE_ID);
         popularMovieColumnHashSet.add(PopularMovieContract.PopularMovieEntry.COLUMN_ORIGINAL_TITLE);
@@ -106,7 +106,7 @@ public class TestDb extends AndroidTestCase {
         assertTrue("Error: This means that we were unable to query the database for table information.",
                 c.moveToFirst());
         // Build a HashSet of all of the column names we want to look for
-        final HashSet<String> videosColumnHashSet = new HashSet<String>();
+        final HashSet<String> videosColumnHashSet = new HashSet<>();
         videosColumnHashSet.add(PopularMovieContract.VideosEntry.COLUMN_POPULAR_MOVIE_ID);
         videosColumnHashSet.add(PopularMovieContract.VideosEntry.COLUMN_ISO_639_1);
         videosColumnHashSet.add(PopularMovieContract.VideosEntry.COLUMN_ISO_3166_1);
@@ -133,7 +133,7 @@ public class TestDb extends AndroidTestCase {
         assertTrue("Error: This means that we were unable to query the database for table information.",
                 c.moveToFirst());
         // Build a HashSet of all of the column names we want to look for
-        final HashSet<String> reviewsColumnHashSet = new HashSet<String>();
+        final HashSet<String> reviewsColumnHashSet = new HashSet<>();
         reviewsColumnHashSet.add(PopularMovieContract.ReviewsEntry.COLUMN_REVIEW_ID);
         reviewsColumnHashSet.add(PopularMovieContract.ReviewsEntry.COLUMN_POPULAR_MOVIE_ID);
         reviewsColumnHashSet.add(PopularMovieContract.ReviewsEntry.COLUMN_AUTHOR);
@@ -243,7 +243,7 @@ public class TestDb extends AndroidTestCase {
         if (popularMovieCursor.moveToFirst()){
             column_popular_movie_id = popularMovieCursor.getInt(popularMovieCursor.getColumnIndex(PopularMovieContract.PopularMovieEntry.COLUMN_POPULAR_MOVIE_ID));
         }
-        assertEquals(Integer.valueOf(TestUtilities.TEST_POPULAR_MOVIE_ID),column_popular_movie_id);
+        assertEquals(TestUtilities.TEST_POPULAR_MOVIE_ID,column_popular_movie_id);
 
         // Fifth Step: Validate the location Query
         TestUtilities.validateCurrentRecord("testInsertReadDb PopularMovieEntry failed to validate",
@@ -267,7 +267,7 @@ public class TestDb extends AndroidTestCase {
         dbHelper.close();
     }
 
-    public long insertVideos(Integer column_popular_movie_id) {
+    private long insertVideos(Integer column_popular_movie_id) {
         // First step: Get reference to writable database
         // If there's an error in those massive SQL table creation Strings,
         // errors will be thrown here when you try to get a writable database.
@@ -317,7 +317,7 @@ public class TestDb extends AndroidTestCase {
         return videoRowId;
     }
 
-    public long insertReviews(Integer column_popular_movie_id) {
+    private long insertReviews(Integer column_popular_movie_id) {
         // First step: Get reference to writable database
         // If there's an error in those massive SQL table creation Strings,
         // errors will be thrown here when you try to get a writable database.

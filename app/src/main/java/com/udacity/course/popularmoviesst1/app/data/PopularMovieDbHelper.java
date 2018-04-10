@@ -26,7 +26,7 @@ import com.udacity.course.popularmoviesst1.app.data.PopularMovieContract.Reviews
 /**
  * Manages a local database for popular movie data.
  */
-public class PopularMovieDbHelper extends SQLiteOpenHelper {
+class PopularMovieDbHelper extends SQLiteOpenHelper {
 
     // If you change the database schema, you must increment the database version.
     private static final int DATABASE_VERSION = 3;

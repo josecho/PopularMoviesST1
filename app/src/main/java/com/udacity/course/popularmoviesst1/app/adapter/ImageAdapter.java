@@ -1,4 +1,4 @@
-package com.udacity.course.popularmoviesst1.app;
+package com.udacity.course.popularmoviesst1.app.adapter;
 
 import android.content.Context;
 import android.view.View;
@@ -8,10 +8,11 @@ import android.widget.GridView;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
+import com.udacity.course.popularmoviesst1.app.R;
 import com.udacity.course.popularmoviesst1.app.model.MoviePoster;
 
 
-class ImageAdapter extends BaseAdapter {
+public class ImageAdapter extends BaseAdapter {
 
     private final Context context;
     private MoviePoster[] moviePoster;

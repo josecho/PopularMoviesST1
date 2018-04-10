@@ -20,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.udacity.course.popularmoviesst1.app.adapter.ImageAdapter;
 import com.udacity.course.popularmoviesst1.app.model.MoviePoster;
 
 
@@ -88,8 +89,7 @@ public class PopularMoviesFragment extends Fragment {
 
     private void updatePopularMovies() {
         if (isNetworkAvailable()) {
-            //FetchMoviePosterTask fetchMoviePosterTask = new FetchMoviePosterTask();
-            FetchMoviePosterTask fetchMoviePosterTask = new FetchMoviePosterTask(getActivity(),imageAdapter);
+            FetchMoviePosterTask fetchMoviePosterTask = new FetchMoviePosterTask(imageAdapter);
             SharedPreferences sharedPrefs =
                     PreferenceManager.getDefaultSharedPreferences(getActivity());
             String orderBy = sharedPrefs.getString(

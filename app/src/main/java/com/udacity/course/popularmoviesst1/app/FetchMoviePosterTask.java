@@ -1,10 +1,10 @@
 package com.udacity.course.popularmoviesst1.app;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.udacity.course.popularmoviesst1.app.adapter.ImageAdapter;
 import com.udacity.course.popularmoviesst1.app.model.MoviePoster;
 
 import org.json.JSONArray;
@@ -22,7 +22,7 @@ import java.net.URL;
  * Created by josecho on 4/8/18.
  */
 
-public class FetchMoviePosterTask extends AsyncTask<String, Void, MoviePoster[]> {
+class FetchMoviePosterTask extends AsyncTask<String, Void, MoviePoster[]> {
 
     private static final String GET = "GET";
     private static final String MOVIE_POSTER_STRING = "MoviePoster string: ";
@@ -31,11 +31,9 @@ public class FetchMoviePosterTask extends AsyncTask<String, Void, MoviePoster[]>
     private final String LOG_TAG = FetchMoviePosterTask.class.getSimpleName();
 
     private ImageAdapter imageAdapter;
-    private final Context mContext;
 
-    public FetchMoviePosterTask(Context mContext,ImageAdapter imageAdapter) {
+    public FetchMoviePosterTask(ImageAdapter imageAdapter) {
         this.imageAdapter = imageAdapter;
-        this.mContext = mContext;
     }
 
     @Override

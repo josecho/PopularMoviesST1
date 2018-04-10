@@ -8,7 +8,8 @@
         android:id="@+id/video_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/youtubeImageDescription"/>
 
     <TextView
         android:id="@+id/video_name"
@@ -18,7 +19,6 @@
         android:padding="5dp"
         android:gravity="center_vertical|center_horizontal"
         android:textStyle="bold"
-        android:textColor="@android:color/white"
-         />
+        android:textColor="@android:color/white"/>
 
 </FrameLayout>

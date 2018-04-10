@@ -24,4 +24,6 @@
     <string name="description_movie_poster">Contains poster of movie</string>
     <string name="mark_as_favorite">MARK AS FAVORITE</string>
 
+    <string name="youtubeImageDescription">Movie trailer</string>
+
 </resources>

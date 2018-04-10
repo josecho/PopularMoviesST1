@@ -24,8 +24,8 @@ public class MoviePoster implements Parcelable {
     private String overview;
     private Double voteAverage;
     private String releaseDate;
-    private List<Review> reviews = new ArrayList<Review>();
-    private List<Video> videos = new ArrayList<Video>();
+    private List<Review> reviews = new ArrayList<>();
+    private List<Video> videos = new ArrayList<>();
 
     public List<Review> getReviews() {
         return reviews;
