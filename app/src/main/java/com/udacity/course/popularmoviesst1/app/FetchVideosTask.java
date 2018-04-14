@@ -37,8 +37,8 @@ class FetchVideosTask extends AsyncTask<Integer, Void, List<Video>> {
     private static final String VIDEO_PLATFORM = "YouTube";
     private final String LOG_TAG = FetchMoviePosterTask.class.getSimpleName();
 
-    private final Context mContext;
-    private final VideoAdapter videoAdapter;
+    private Context mContext;
+    private VideoAdapter videoAdapter;
 
     public FetchVideosTask(Context context,VideoAdapter videoAdapter) {
         this.mContext = context;
@@ -164,9 +164,9 @@ class FetchVideosTask extends AsyncTask<Integer, Void, List<Video>> {
                         videoAdapter.add(video);
                     }
                 }
+
             }
         }
     }
-
 
 }

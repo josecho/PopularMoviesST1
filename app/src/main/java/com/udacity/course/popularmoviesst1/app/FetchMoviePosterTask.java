@@ -30,7 +30,7 @@ class FetchMoviePosterTask extends AsyncTask<String, Void, MoviePoster[]> {
     private static final String ERROR_CLOSING_STREAM = "Error closing stream";
     private final String LOG_TAG = FetchMoviePosterTask.class.getSimpleName();
 
-    private ImageAdapter imageAdapter;
+    private final ImageAdapter imageAdapter;
 
     public FetchMoviePosterTask(ImageAdapter imageAdapter) {
         this.imageAdapter = imageAdapter;

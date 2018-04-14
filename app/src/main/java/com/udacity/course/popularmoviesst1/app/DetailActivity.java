@@ -40,9 +40,9 @@ import android.widget.Toast;
 
 import com.linearlistview.LinearListView;
 import com.squareup.picasso.Picasso;
-import com.udacity.course.popularmoviesst1.app.model.MoviePoster;
 import com.udacity.course.popularmoviesst1.app.adapter.ReviewAdapter;
 import com.udacity.course.popularmoviesst1.app.adapter.VideoAdapter;
+import com.udacity.course.popularmoviesst1.app.model.MoviePoster;
 import com.udacity.course.popularmoviesst1.app.model.Review;
 import com.udacity.course.popularmoviesst1.app.model.Video;
 
@@ -111,7 +111,6 @@ public class DetailActivity extends AppCompatActivity {
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-
             View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
             // The detail Activity called via intent.  Inspect the intent for movie poster data.
             Intent intent = getActivity().getIntent();
@@ -195,7 +194,6 @@ public class DetailActivity extends AppCompatActivity {
                     moviePoster.toString() + MOVIE_POSTER_SHARE_HASHTAG);
             return shareIntent;
         }
-
 
         @Override
         public void onStart() {

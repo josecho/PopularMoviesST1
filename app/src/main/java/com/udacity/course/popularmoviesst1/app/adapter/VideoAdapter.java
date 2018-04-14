@@ -1,6 +1,9 @@
 package com.udacity.course.popularmoviesst1.app.adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,13 +23,15 @@ import java.util.List;
 
 public class VideoAdapter extends BaseAdapter {
 
+    private static final String LOG_TAG = VideoAdapter.class.getSimpleName();
+
     private static final String URL_BASE_VIDEO_YOUTUBE = "http://img.youtube.com/vi/";
     private static final String FINAL_URL = "/0.jpg";
     private final Context vAContext;
     private final LayoutInflater inflater;
     private final Video video = new Video();
 
-    private List<Video> videos;
+    private final List<Video> videos;
 
     public VideoAdapter(Context context, List<Video> objects) {
         vAContext = context;
@@ -77,11 +82,21 @@ public class VideoAdapter extends BaseAdapter {
             viewHolder = new ViewHolder(view);
             view.setTag(viewHolder);
         }
-        final Video Video = getItem(position);
+        final Video video = getItem(position);
         viewHolder = (ViewHolder) view.getTag();
-        String youtubeURL = URL_BASE_VIDEO_YOUTUBE + Video.getKey() + FINAL_URL;
+        String youtubeURL = URL_BASE_VIDEO_YOUTUBE + video.getKey() + FINAL_URL;
         Glide.with(getContext()).load(youtubeURL).into(viewHolder.imageView);
-        viewHolder.nameView.setText(Video.getName());
+        viewHolder.nameView.setText(video.getName());
+        viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent shareIntent = new Intent(Intent.ACTION_VIEW);
+                shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+                shareIntent.setType("text/plain");
+                vAContext.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + video.getKey())));
+                Log.d(LOG_TAG, "launch video with key: " +  video.getKey());
+            }
+        });
         return view;
     }
 

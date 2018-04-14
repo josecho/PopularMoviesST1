@@ -35,11 +35,11 @@ public class MoviePoster implements Parcelable {
         this.reviews= reviews;
     }
 
-    public List<Video> getTrailer() {
+    public List<Video> getVideos() {
         return videos;
     }
 
-    public void setTrailer(List<Video> videos) {
+    public void setVideos(List<Video> videos) {
         this.videos = videos;
     }
 

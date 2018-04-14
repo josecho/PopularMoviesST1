@@ -23,7 +23,7 @@ public class ReviewAdapter extends BaseAdapter {
     private final LayoutInflater mInflater;
     private final Review review = new Review();
 
-    private List<Review> mObjects;
+    private final List<Review> mObjects;
 
     public ReviewAdapter(Context context, List<Review> objects) {
         mContext = context;
