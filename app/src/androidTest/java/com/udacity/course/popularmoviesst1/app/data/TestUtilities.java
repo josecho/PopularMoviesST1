@@ -65,6 +65,7 @@ public class TestUtilities extends AndroidTestCase {
         testValues.put(PopularMovieContract.VideosEntry.COLUMN_SITE, "YouTube");
         testValues.put(PopularMovieContract.VideosEntry.COLUMN_SIZE, 1080);
         testValues.put(PopularMovieContract.VideosEntry.COLUMN_TYPE, "Clip");
+        testValues.put(PopularMovieContract.VideosEntry.COLUMN_FAVORITE, 1);
         return testValues;
     }
 

@@ -15,6 +15,9 @@
  */
 package com.udacity.course.popularmoviesst1.app.data;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
@@ -22,8 +25,30 @@ import android.provider.BaseColumns;
  */
 class PopularMovieContract {
 
+    // The "Content authority" is a name for the entire content provider, similar to the
+    // relationship between a domain name and its website.  A convenient string to use for the
+    // content authority is the package name for the app, which is guaranteed to be unique on the
+    // device.
+    public static final String CONTENT_AUTHORITY = "com.udacity.course.popularmoviesst1.app";
+
+    // Use CONTENT_AUTHORITY to create the base of all URI's which apps will use to contact
+    // the content provider.
+    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+
+    public static final String PATH_POPULAR_MOVIES = "popularmovies";
+    public static final String PATH_VIDEO = "video";
+    public static final String PATH_REVIEW = "review";
+
     /* Inner class that defines the table contents of the popular movie table */
     public static final class PopularMovieEntry implements BaseColumns {
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_POPULAR_MOVIES).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_POPULAR_MOVIES;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_POPULAR_MOVIES;
 
         public static final String TABLE_NAME = "popularMovies";
         // "id":19404 Popular Movie id as returned by API,
@@ -39,9 +64,21 @@ class PopularMovieContract {
         public static final String COLUMN_VOTE_AVERAGE = "vote_average";
         //called release_date":"1995-10-20" in the api
         public static final String COLUMN_RELEASE_DATE = "release_date";
+
+        public static Uri buildPopularMovieUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
     }
 
     public static final class VideosEntry implements BaseColumns {
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_VIDEO).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_VIDEO;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_VIDEO;
 
         public static final String TABLE_NAME = "videos";
         //  Video id as returned by API,
@@ -54,9 +91,22 @@ class PopularMovieContract {
         public static final String COLUMN_SITE = "site";
         public static final String COLUMN_SIZE = "size";
         public static final String COLUMN_TYPE = "type";
+        public static final String COLUMN_FAVORITE = "favorite";
+
+        public static Uri buildVideoUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
     }
 
     public static final class ReviewsEntry implements BaseColumns {
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_REVIEW).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEW;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEW;
 
         public static final String TABLE_NAME = "reviews";
         //  Review id as returned by API,
@@ -65,6 +115,10 @@ class PopularMovieContract {
         public static final String COLUMN_AUTHOR = "author";
         public static final String COLUMN_CONTENT = "content";
         public static final String COLUMN_URL = "url";
+
+        public static Uri buildReviewUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
     }
 
 }

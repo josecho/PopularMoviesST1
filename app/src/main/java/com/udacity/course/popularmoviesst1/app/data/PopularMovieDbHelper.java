@@ -18,27 +18,34 @@ package com.udacity.course.popularmoviesst1.app.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.udacity.course.popularmoviesst1.app.data.PopularMovieContract.PopularMovieEntry;
-import com.udacity.course.popularmoviesst1.app.data.PopularMovieContract.VideosEntry;
 import com.udacity.course.popularmoviesst1.app.data.PopularMovieContract.ReviewsEntry;
+import com.udacity.course.popularmoviesst1.app.data.PopularMovieContract.VideosEntry;
 
 /**
  * Manages a local database for popular movie data.
  */
 class PopularMovieDbHelper extends SQLiteOpenHelper {
 
-    // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 3;
+    private final String LOG_TAG = PopularMovieDbHelper.class.getSimpleName();
 
-    static final String DATABASE_NAME = "popularMovies.db";
+    // If you change the database schema, you must increment the database version.
+    private static final int DATABASE_VERSION = 1;
+
+    static final String DATABASE_NAME = "popularFilms.db";
 
     public PopularMovieDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+
     }
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        //onUpgrade(sqLiteDatabase,1,2);
+
+        Log.d(LOG_TAG, "Creating tables ****************************** ");
 
         final String SQL_CREATE_VIDEOS_TABLE = "CREATE TABLE " + VideosEntry.TABLE_NAME + " (" +
                 VideosEntry.COLUMN_VIDEO_ID + " TEXT PRIMARY KEY UNIQUE," +
@@ -49,7 +56,8 @@ class PopularMovieDbHelper extends SQLiteOpenHelper {
                 VideosEntry.COLUMN_NAME + " TEXT, " +
                 VideosEntry.COLUMN_SITE + " TEXT, " +
                 VideosEntry.COLUMN_SIZE + " INTEGER, " +
-                VideosEntry.COLUMN_TYPE + " TEXT " +
+                VideosEntry.COLUMN_TYPE + " TEXT, " +
+                VideosEntry.COLUMN_FAVORITE + " INTEGER DEFAULT 0 " +
                 " );";
 
         final String SQL_CREATE_REVIEWS_TABLE = "CREATE TABLE " + ReviewsEntry.TABLE_NAME + " (" +
@@ -85,12 +93,19 @@ class PopularMovieDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        Log.d(LOG_TAG, "Updating table from********************************************************** " + oldVersion + " to " + newVersion);
         // This database is only a cache for online data, so its upgrade policy is
         // to simply to discard the data and start over
         // Note that this only fires if you change the version number for your database.
         // It does NOT depend on the version number for your application.
         // If you want to update the schema without wiping data, commenting out the next 2 lines
         // should be your top priority before modifying this method.
+
+        /*sqLiteDatabase.execSQL("ALTER TABLE videos ADD COLUMN favorite INTEGER DEFAULT 0");*/
+        //if (newVersion > oldVersion) {
+          //  sqLiteDatabase.execSQL("ALTER TABLE videos ADD COLUMN favorite INTEGER DEFAULT 0");
+        //}
+
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + VideosEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ReviewsEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PopularMovieEntry.TABLE_NAME);

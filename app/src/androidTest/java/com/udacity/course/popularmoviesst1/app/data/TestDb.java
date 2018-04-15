@@ -115,6 +115,7 @@ public class TestDb extends AndroidTestCase {
         videosColumnHashSet.add(PopularMovieContract.VideosEntry.COLUMN_SITE);
         videosColumnHashSet.add(PopularMovieContract.VideosEntry.COLUMN_SIZE);
         videosColumnHashSet.add(PopularMovieContract.VideosEntry.COLUMN_TYPE);
+        videosColumnHashSet.add(PopularMovieContract.VideosEntry.COLUMN_FAVORITE);
         int columnNameIndex = c.getColumnIndex("name");
         do {
             String columnName = c.getString(columnNameIndex);

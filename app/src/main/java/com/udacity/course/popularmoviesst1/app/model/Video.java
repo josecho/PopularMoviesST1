@@ -14,6 +14,7 @@ public class Video {
     private String site;
     private String size;
     private String type;
+    private String favorite;
 
 
 
@@ -79,5 +80,13 @@ public class Video {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(String favorite) {
+        this.favorite = favorite;
     }
 }
