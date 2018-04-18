@@ -1,8 +1,10 @@
 package com.udacity.course.popularmoviesst1.app.data;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -21,6 +23,9 @@ import java.util.Set;
 public class TestUtilities extends AndroidTestCase {
 
     static final Integer TEST_POPULAR_MOVIE_ID = 269149;
+    static final String TEST_VIDEO_ID = "571cb2c0c3a36843150006ed";
+
+    static final long TEST_DATE = 1419033600L;  // December 20th, 2014
 
     static void validateCursor(String error, Cursor valueCursor, ContentValues expectedValues) {
         assertTrue("Empty cursor returned. " + error, valueCursor.moveToFirst());
@@ -41,9 +46,9 @@ public class TestUtilities extends AndroidTestCase {
         }
     }
 
-    static ContentValues createPopularMoviesValues() {
+    static ContentValues createPopularMoviesValues(Integer popularMovieId) {
         ContentValues popularMoviesValues = new ContentValues();
-        popularMoviesValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_POPULAR_MOVIE_ID, TEST_POPULAR_MOVIE_ID);
+        popularMoviesValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_POPULAR_MOVIE_ID, popularMovieId);
         popularMoviesValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_ORIGINAL_TITLE, "The Big-Hearted Will Take Away the Bride");
         popularMoviesValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_POSTER_MAP, "\\/uC6TTUhPpQCmgldGyYveKRAu8JN.jpg");
         popularMoviesValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_OVERWIEW, "Raj is a rich, carefree, happy-go-lucky second generation NRI. Simran ..." +
@@ -53,10 +58,25 @@ public class TestUtilities extends AndroidTestCase {
         return popularMoviesValues;
     }
 
-    static ContentValues createVideosValues(Integer column_popular_movie_id) {
+    static long insertPopularMoviesValues(Context context) {
+        // insert our test records into the database
+        PopularMovieDbHelper dbHelper = new PopularMovieDbHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues testValues = TestUtilities.createPopularMoviesValues(TestUtilities.TEST_POPULAR_MOVIE_ID);
+
+        long locationRowId;
+        locationRowId = db.insert(PopularMovieContract.PopularMovieEntry.TABLE_NAME, null, testValues);
+
+        // Verify we got a row back.
+        assertTrue("Error: Failure to insert PopularMovies Values", locationRowId != -1);
+
+        return locationRowId;
+    }
+
+    static ContentValues createVideosValues(String videoId,long column_popular_movie_id) {
         // Create a new map of values, where column names are the keys
         ContentValues testValues = new ContentValues();
-        testValues.put(PopularMovieContract.VideosEntry.COLUMN_VIDEO_ID, "571cb2c0c3a36843150006ed");
+        testValues.put(PopularMovieContract.VideosEntry.COLUMN_VIDEO_ID, videoId);
         testValues.put(PopularMovieContract.VideosEntry.COLUMN_POPULAR_MOVIE_ID, column_popular_movie_id);
         testValues.put(PopularMovieContract.VideosEntry.COLUMN_ISO_639_1, "en");
         testValues.put(PopularMovieContract.VideosEntry.COLUMN_ISO_3166_1, "US");

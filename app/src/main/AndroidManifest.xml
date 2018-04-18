@@ -40,6 +40,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.udacity.course.popularmoviesst1.app.MainActivity" />
         </activity>
+        <provider
+            android:authorities="com.udacity.course.popularmoviesst1.app"
+            android:name=".data.PopularMovieProvider" />
 
     </application>
 

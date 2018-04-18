@@ -32,7 +32,7 @@ class PopularMovieDbHelper extends SQLiteOpenHelper {
     private final String LOG_TAG = PopularMovieDbHelper.class.getSimpleName();
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 5;
 
     static final String DATABASE_NAME = "popularFilms.db";
 
@@ -48,7 +48,8 @@ class PopularMovieDbHelper extends SQLiteOpenHelper {
         Log.d(LOG_TAG, "Creating tables ****************************** ");
 
         final String SQL_CREATE_VIDEOS_TABLE = "CREATE TABLE " + VideosEntry.TABLE_NAME + " (" +
-                VideosEntry.COLUMN_VIDEO_ID + " TEXT PRIMARY KEY UNIQUE," +
+                VideosEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                VideosEntry.COLUMN_VIDEO_ID + " TEXT," +
                 VideosEntry.COLUMN_POPULAR_MOVIE_ID + " INTEGER NOT NULL, " +
                 VideosEntry.COLUMN_ISO_639_1 + " TEXT, " +
                 VideosEntry.COLUMN_ISO_3166_1 + " TEXT, " +
@@ -59,6 +60,7 @@ class PopularMovieDbHelper extends SQLiteOpenHelper {
                 VideosEntry.COLUMN_TYPE + " TEXT, " +
                 VideosEntry.COLUMN_FAVORITE + " INTEGER DEFAULT 0 " +
                 " );";
+        Log.d(LOG_TAG, SQL_CREATE_VIDEOS_TABLE);
 
         final String SQL_CREATE_REVIEWS_TABLE = "CREATE TABLE " + ReviewsEntry.TABLE_NAME + " (" +
                 ReviewsEntry.COLUMN_REVIEW_ID + " TEXT PRIMARY KEY UNIQUE," +
@@ -71,8 +73,9 @@ class PopularMovieDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_POPULAR_MOVIE_TABLE = "CREATE TABLE " + PopularMovieEntry.TABLE_NAME + " (" +
                 // Why AutoIncrement here, and not above?
                 // Unique keys will be auto-generated in either case.
-                PopularMovieEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                PopularMovieEntry.COLUMN_POPULAR_MOVIE_ID + " INTEGER NOT NULL, " +
+                //PopularMovieEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                //PopularMovieEntry.COLUMN_POPULAR_MOVIE_ID + " INTEGER NOT NULL, " +
+                PopularMovieEntry.COLUMN_POPULAR_MOVIE_ID + " INTEGER PRIMARY KEY ," +
                 PopularMovieEntry.COLUMN_ORIGINAL_TITLE + " STRING, " +
                 PopularMovieEntry.COLUMN_POSTER_MAP + " STRING, " +
                 PopularMovieEntry.COLUMN_OVERWIEW + " STRING, " +

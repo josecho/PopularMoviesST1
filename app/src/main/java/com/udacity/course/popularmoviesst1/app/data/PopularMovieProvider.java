@@ -80,11 +80,11 @@ public class PopularMovieProvider extends ContentProvider {
                     "." + WeatherContractte.LocationEntry.COLUMN_LOCATION_SETTING + " = ? AND " +
                     WeatherContract.WeatherEntry.COLUMN_DATE + " = ? ";*/
 
-   /* private static final String favoritesVideosSelection =
+    private static final String favoritesVideosSelection =
             PopularMovieContract.VideosEntry.TABLE_NAME+
-                    "." + PopularMovieContract.VideosEntry.COLUMN_FAVORITE+ " = 1 ";*/
+                    "." + PopularMovieContract.VideosEntry.COLUMN_FAVORITE+ " = 1 ";
 
-   /* private Cursor getFavoriteVideos(Uri uri, String[] projection, String sortOrder){
+    private Cursor getFavoriteVideos(Uri uri, String[] projection, String sortOrder){
         String selection = favoritesVideosSelection;
         return sPopularMovieSettingQueryBuilder.query(mOpenHelper.getReadableDatabase(),
                 projection,
@@ -95,7 +95,7 @@ public class PopularMovieProvider extends ContentProvider {
                 sortOrder
         );
 
-    }*/
+    }
 
    /* private Cursor getPopularMoviesSetting(Uri uri, String[] projection, String sortOrder){
 
@@ -152,14 +152,18 @@ public class PopularMovieProvider extends ContentProvider {
     static UriMatcher buildUriMatcher() {
         // 1) The code passed into the constructor represents the code to return for the root
         // URI.  It's common to use NO_MATCH as the code for this case. Add the constructor below.
-
+        final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
+        final String authority = PopularMovieContract.CONTENT_AUTHORITY;
 
         // 2) Use the addURI function to match each of the types.  Use the constants from
         // WeatherContract to help define the types to the UriMatcher.
+        matcher.addURI(authority, PopularMovieContract.PATH_POPULAR_MOVIES, POPULAR_MOVIES);
+        matcher.addURI(authority, PopularMovieContract.PATH_VIDEO, VIDEO);
+        matcher.addURI(authority, PopularMovieContract.PATH_VIDEO+ "/*",FAVORITES_VIDEOS);
 
 
         // 3) Return the new matcher!
-        return null;
+        return matcher;
     }
 
     /*
@@ -185,13 +189,11 @@ public class PopularMovieProvider extends ContentProvider {
 
         switch (match) {
             // Student: Uncomment and fill out these two cases
-//            case WEATHER_WITH_LOCATION_AND_DATE:
-//            case WEATHER_WITH_LOCATION:
+            case FAVORITES_VIDEOS:
+                return PopularMovieContract.VideosEntry.CONTENT_TYPE;
             case POPULAR_MOVIES:
-                //return WeatherContract.WeatherEntry.CONTENT_TYPE;
                 return PopularMovieContract.PopularMovieEntry.CONTENT_TYPE;
             case VIDEO:
-                //return WeatherContract.LocationEntry.CONTENT_TYPE;
                 return PopularMovieContract.VideosEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -216,17 +218,34 @@ public class PopularMovieProvider extends ContentProvider {
                 retCursor = getWeatherByLocationSetting(uri, projection, sortOrder);
                 break;
             }*/
-            /*case FAVORITES_VIDEOS: {
+            case FAVORITES_VIDEOS: {
                 retCursor = getFavoriteVideos(uri, projection, sortOrder);
-            }*/
+                break;
+            }
             // "weather"
             case POPULAR_MOVIES: {
-                retCursor = null;
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        PopularMovieContract.PopularMovieEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
                 break;
             }
             // "location"
             case VIDEO: {
-                retCursor = null;
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        PopularMovieContract.VideosEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
                 break;
             }
 
@@ -256,6 +275,15 @@ public class PopularMovieProvider extends ContentProvider {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
             }
+            case VIDEO: {
+                //normalizeDate(values);
+                long _id = db.insert(PopularMovieContract.VideosEntry.TABLE_NAME, null, values);
+                if ( _id > 0 )
+                    returnUri = PopularMovieContract.VideosEntry.buildVideoUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -265,18 +293,28 @@ public class PopularMovieProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        // Student: Start by getting a writable database
-
-        // Student: Use the uriMatcher to match the WEATHER and LOCATION URI's we are going to
-        // handle.  If it doesn't match these, throw an UnsupportedOperationException.
-
-        // Student: A null value deletes all rows.  In my implementation of this, I only notified
-        // the uri listeners (using the content resolver) if the rowsDeleted != 0 or the selection
-        // is null.
-        // Oh, and you should notify the listeners here.
-
-        // Student: return the actual rows deleted
-        return 0;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int rowsDeleted;
+        // this makes delete all rows return the number of rows deleted
+        if ( null == selection ) selection = "1";
+        switch (match) {
+            case POPULAR_MOVIES:
+                rowsDeleted = db.delete(
+                        PopularMovieContract.PopularMovieEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case VIDEO:
+                rowsDeleted = db.delete(
+                        PopularMovieContract.VideosEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        // Because a null deletes all rows
+        if (rowsDeleted != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsDeleted;
     }
 
    /* private void normalizeDate(ContentValues values) {
@@ -290,9 +328,26 @@ public class PopularMovieProvider extends ContentProvider {
     @Override
     public int update(
             Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        // Student: This is a lot like the delete function.  We return the number of rows impacted
-        // by the update.
-        return 0;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int rowsUpdated;
+
+        switch (match) {
+            case POPULAR_MOVIES:
+                rowsUpdated = db.update(PopularMovieContract.PopularMovieEntry.TABLE_NAME, values, selection,
+                        selectionArgs);
+                break;
+            case VIDEO:
+                rowsUpdated = db.update(PopularMovieContract.VideosEntry.TABLE_NAME, values, selection,
+                        selectionArgs);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        if (rowsUpdated != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsUpdated;
     }
 
     @Override

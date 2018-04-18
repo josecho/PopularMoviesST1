@@ -81,7 +81,7 @@ public class TestDb extends AndroidTestCase {
                 c.moveToFirst());
         // Build a HashSet of all of the column names we want to look for
         final HashSet<String> popularMovieColumnHashSet = new HashSet<>();
-        popularMovieColumnHashSet.add(PopularMovieContract.PopularMovieEntry._ID);
+        //popularMovieColumnHashSet.add(PopularMovieContract.PopularMovieEntry._ID);
         popularMovieColumnHashSet.add(PopularMovieContract.PopularMovieEntry.COLUMN_POPULAR_MOVIE_ID);
         popularMovieColumnHashSet.add(PopularMovieContract.PopularMovieEntry.COLUMN_ORIGINAL_TITLE);
         popularMovieColumnHashSet.add(PopularMovieContract.PopularMovieEntry.COLUMN_POSTER_MAP);
@@ -157,10 +157,9 @@ public class TestDb extends AndroidTestCase {
         // errors will be thrown here when you try to get a writable database.
         PopularMovieDbHelper dbHelper = new PopularMovieDbHelper(mContext);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-
         // Second Step: Create ContentValues of what you want to insert
         // (you can use the createNorthPoleLocationValues if you wish)
-        ContentValues testValues = TestUtilities.createPopularMoviesValues();
+        ContentValues testValues = TestUtilities.createPopularMoviesValues(TestUtilities.TEST_POPULAR_MOVIE_ID);
 
         // Third Step: Insert ContentValues into database and get a row ID back
         long popularMovieRowId;
@@ -204,7 +203,7 @@ public class TestDb extends AndroidTestCase {
     }
 
     public void testVideosTable() {
-        insertVideos(TestUtilities.TEST_POPULAR_MOVIE_ID);
+        insertVideos(TestUtilities.TEST_VIDEO_ID,TestUtilities.TEST_POPULAR_MOVIE_ID);
     }
 
     public void testReviewsTable() {
@@ -219,7 +218,7 @@ public class TestDb extends AndroidTestCase {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         // Second Step (Weather): Create weather values
-        ContentValues popularMoviesValues = TestUtilities.createPopularMoviesValues();
+        ContentValues popularMoviesValues = TestUtilities.createPopularMoviesValues(TestUtilities.TEST_POPULAR_MOVIE_ID);
 
         // Third Step (Weather): Insert ContentValues into database and get a row ID back
         long weatherRowId = db.insert(PopularMovieContract.PopularMovieEntry.TABLE_NAME, null, popularMoviesValues);
@@ -255,7 +254,7 @@ public class TestDb extends AndroidTestCase {
                 popularMovieCursor.moveToNext() );
 
 
-        long videoRowId = insertVideos(column_popular_movie_id);
+        long videoRowId = insertVideos(TestUtilities.TEST_VIDEO_ID,column_popular_movie_id);
         // Make sure we have a valid row ID.
         assertFalse("Error: Location Not Inserted Correctly", videoRowId == -1L);
 
@@ -268,7 +267,7 @@ public class TestDb extends AndroidTestCase {
         dbHelper.close();
     }
 
-    private long insertVideos(Integer column_popular_movie_id) {
+    private long insertVideos(String videoId,Integer column_popular_movie_id) {
         // First step: Get reference to writable database
         // If there's an error in those massive SQL table creation Strings,
         // errors will be thrown here when you try to get a writable database.
@@ -276,7 +275,7 @@ public class TestDb extends AndroidTestCase {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         // Second Step: Create ContentValues of what you want to insert
-        ContentValues testVideosValues = TestUtilities.createVideosValues(column_popular_movie_id);
+        ContentValues testVideosValues = TestUtilities.createVideosValues(videoId,column_popular_movie_id);
         // Third Step: Insert ContentValues into database and get a row ID back
         long videoRowId;
         videoRowId = db.insert(PopularMovieContract.VideosEntry.TABLE_NAME, null, testVideosValues);
