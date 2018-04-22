@@ -111,12 +111,7 @@ public class TestFetchPopularMoviesTask extends AndroidTestCase{
             assertFalse("Error: there should be only one record returned from a location query",
                     videoCursor.moveToNext());
 
-            // add the location again
-           /* long newVideoIndex = fetchMoviePosterTask.addVideo(ADD_VIDEO_ID,ADD_POPULAR_MOVIE_ID, ADD_ISO_639_1, ADD_ISO_3166_1,
-                    ADD_KEY, ADD_NAME,ADD_SITE,ADD_SIZE,ADD_TYPE,  ADD_FAVORITE);
 
-            assertEquals("Error: inserting a location again should return the same ID",
-                    videoIndex, newVideoIndex);*/
         }
         // reset our state back to normal
         getContext().getContentResolver().delete(PopularMovieContract.VideosEntry.CONTENT_URI,

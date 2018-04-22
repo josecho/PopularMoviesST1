@@ -95,12 +95,6 @@ public class PopularMovieContract {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
-        //TODO
-       /* public static Uri buildFavoriteVideos(String favorites) {
-            return CONTENT_URI.buildUpon().appendPath(favorites).build();
-        }*/
-
-
     }
 
     public static final class ReviewsEntry implements BaseColumns {

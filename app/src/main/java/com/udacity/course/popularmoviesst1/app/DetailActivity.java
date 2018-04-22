@@ -99,7 +99,6 @@ public class DetailActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -126,7 +125,6 @@ public class DetailActivity extends AppCompatActivity {
      */
     public static class DetailFragment extends Fragment {
 
-
         private static final String LOG_TAG = DetailFragment.class.getSimpleName();
 
         private static final String MOVIE_POSTER_SHARE_HASHTAG = " #MoviePosterApp";
@@ -141,10 +139,7 @@ public class DetailActivity extends AppCompatActivity {
         private ReviewAdapter reviewAdapter;
         private CardView cardViewReviews;
 
-
         public DetailFragment() {
-
-
             setHasOptionsMenu(true);
         }
 
@@ -166,7 +161,6 @@ public class DetailActivity extends AppCompatActivity {
 
                 Button videoButton = rootView.findViewById(R.id.favorite_button);
                 moviePoster = intent.getParcelableExtra(getString(R.string.movie_poster));
-                //videoButton.setTag(moviePoster.getMoviePosterId());
                 videoButton.setOnClickListener(mVideoButtonOnClickListener);
 
                 Cursor cursor = getActivity().getContentResolver().query(
@@ -350,7 +344,6 @@ public class DetailActivity extends AppCompatActivity {
                 return false;
             }
         }
-
 
     }
 }

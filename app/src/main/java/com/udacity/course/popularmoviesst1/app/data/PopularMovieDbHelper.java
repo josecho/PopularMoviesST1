@@ -90,17 +90,6 @@ class PopularMovieDbHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
         Log.d(LOG_TAG, "Updating table from********************************************************** " + oldVersion + " to " + newVersion);
-        // This database is only a cache for online data, so its upgrade policy is
-        // to simply to discard the data and start over
-        // Note that this only fires if you change the version number for your database.
-        // It does NOT depend on the version number for your application.
-        // If you want to update the schema without wiping data, commenting out the next 2 lines
-        // should be your top priority before modifying this method.
-
-        /*sqLiteDatabase.execSQL("ALTER TABLE videos ADD COLUMN favorite INTEGER DEFAULT 0");*/
-        //if (newVersion > oldVersion) {
-          //  sqLiteDatabase.execSQL("ALTER TABLE videos ADD COLUMN favorite INTEGER DEFAULT 0");
-        //}
 
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + VideosEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ReviewsEntry.TABLE_NAME);

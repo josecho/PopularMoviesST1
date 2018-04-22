@@ -101,30 +101,24 @@ class FetchMoviePosterTask extends AsyncTask<String, Void, MoviePoster[]> {
             for (int i = 0; i < resultSet.length(); i++) {
                 moviePosters[i] = new MoviePoster();
                 JSONObject movieInfo = resultSet.optJSONObject(i);
-
                 try {
                     moviePosters[i].setMoviePosterId(movieInfo.getInt(TAG_MOVIE_ID));
-
-                moviePosters[i].setOriginalTitle(movieInfo.getString(TAG_ORIGINAL_TITLE));
-                moviePosters[i].setPosterPath(movieInfo.getString(TAG_POSTER_PATH));
-                moviePosters[i].setOverview(movieInfo.getString(TAG_OVERVIEW));
-                moviePosters[i].setVoteAverage(movieInfo.getDouble(TAG_VOTE_AVERAGE));
-                moviePosters[i].setReleaseDate(movieInfo.getString(TAG_RELEASE_DATE));
-                moviePosters[i].setFavorite(Integer.valueOf(movieInfo.getString(TAG_FAVORITE)));
+                    moviePosters[i].setOriginalTitle(movieInfo.getString(TAG_ORIGINAL_TITLE));
+                    moviePosters[i].setPosterPath(movieInfo.getString(TAG_POSTER_PATH));
+                    moviePosters[i].setOverview(movieInfo.getString(TAG_OVERVIEW));
+                    moviePosters[i].setVoteAverage(movieInfo.getDouble(TAG_VOTE_AVERAGE));
+                    moviePosters[i].setReleaseDate(movieInfo.getString(TAG_RELEASE_DATE));
+                    moviePosters[i].setFavorite(Integer.valueOf(movieInfo.getString(TAG_FAVORITE)));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
-
-
             return moviePosters;
 
         }else {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String moviePosterJsonStr;
-
-
             try {
                 final String MOVIE_POSTER_BASE_URL = "https://api.themoviedb.org/3/movie/";
                 final String QUESTION_MARK = "?";
@@ -152,8 +146,6 @@ class FetchMoviePosterTask extends AsyncTask<String, Void, MoviePoster[]> {
                 }
                 moviePosterJsonStr = stringBuilder.toString();
                 Log.v(LOG_TAG, MOVIE_POSTER_STRING + moviePosterJsonStr);
-
-
             } catch (IOException e) {
                 Log.e(LOG_TAG, ERROR, e);
                 return null;
@@ -199,7 +191,6 @@ class FetchMoviePosterTask extends AsyncTask<String, Void, MoviePoster[]> {
             // Now that the content provider is set up, inserting rows of data is pretty simple.
             // First create a ContentValues object to hold the data you want to insert.
             ContentValues videoValues = new ContentValues();
-
             // Then add the data, along with the corresponding name of the data type,
             // so the content provider knows what kind of value is being inserted.
             videoValues.put(PopularMovieContract.VideosEntry._ID, videoId);
@@ -212,7 +203,6 @@ class FetchMoviePosterTask extends AsyncTask<String, Void, MoviePoster[]> {
             videoValues.put(PopularMovieContract.VideosEntry.COLUMN_SIZE, 1080);
             videoValues.put(PopularMovieContract.VideosEntry.COLUMN_TYPE, type);
             videoValues.put(PopularMovieContract.VideosEntry.COLUMN_FAVORITE, 1);
-
             // Finally, insert location data into the database.
             Uri insertedUri = mContext.getContentResolver().insert(
                     PopularMovieContract.VideosEntry.CONTENT_URI,
@@ -228,8 +218,6 @@ class FetchMoviePosterTask extends AsyncTask<String, Void, MoviePoster[]> {
         return locationId;
     }
 
-
-
     /**
      * Take the String representing the complete forecast in JSON Format and
      * pull out the data we need to construct the Strings needed for the wireframes.
@@ -241,7 +229,6 @@ class FetchMoviePosterTask extends AsyncTask<String, Void, MoviePoster[]> {
             throws JSONException {
 
         // These are the names of the JSON objects that need to be extracted.
-
         final String TAG_RESULTS = "results";
         final String TAG_MOVIE_ID = "id";
         final String TAG_ORIGINAL_TITLE = "original_title";

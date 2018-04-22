@@ -39,9 +39,7 @@ public class PopularMovieProvider extends ContentProvider {
     private static final int REVIEWS = 300;
     private static final int REVIEWS_ITEM = 301;
 
-
     private static final SQLiteQueryBuilder sPopularMovieSettingQueryBuilder;
-
 
     static{
         sPopularMovieSettingQueryBuilder = new SQLiteQueryBuilder();
@@ -125,11 +123,6 @@ public class PopularMovieProvider extends ContentProvider {
         return true;
     }
 
-    /*
-        Students: Here's where you'll code the getType function that uses the UriMatcher.  You can
-        test this by uncommenting testGetType in TestProvider.
-
-     */
     @Override
     public String getType(Uri uri) {
 
