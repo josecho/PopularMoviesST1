@@ -49,60 +49,133 @@ class FetchMoviePosterTask extends AsyncTask<String, Void, MoviePoster[]> {
         if (params.length == 0) {
             return null;
         }
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
-        String moviePosterJsonStr;
         String orderBy = params[0];
-        try {
-            final String MOVIE_POSTER_BASE_URL = "https://api.themoviedb.org/3/movie/";
-            final String QUESTION_MARK = "?";
-            final String API_KEY_PARAM = "api_key";
-            final String URL = MOVIE_POSTER_BASE_URL +  orderBy + QUESTION_MARK;
-            Uri builtUri = Uri.parse(URL).buildUpon()
-                    .appendQueryParameter(API_KEY_PARAM, BuildConfig.OPEN_MOVIE_POSTER_API_KEY)
-                    .build();
-            URL url = new URL(builtUri.toString());
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod(GET);
-            urlConnection.connect();
-            InputStream inputStream = urlConnection.getInputStream();
-            StringBuilder stringBuilder = new StringBuilder();
-            if (inputStream == null) {
-                return null;
-            }
-            reader = new BufferedReader(new InputStreamReader(inputStream));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line).append("\n");
-            }
-            if (stringBuilder.length() == 0) {
-                return null;
-            }
-            moviePosterJsonStr = stringBuilder.toString();
-            Log.v(LOG_TAG, MOVIE_POSTER_STRING + moviePosterJsonStr);
+        if (orderBy.equals("favorites")){
 
+            Cursor favoritesCursor = mContext.getContentResolver().query(
+                    PopularMovieContract.PopularMovieEntry.CONTENT_URI,
+                    new String[]{PopularMovieContract.PopularMovieEntry._ID,
+                            PopularMovieContract.PopularMovieEntry.COLUMN_ORIGINAL_TITLE,
+                            PopularMovieContract.PopularMovieEntry.COLUMN_POSTER_MAP,
+                            PopularMovieContract.PopularMovieEntry.COLUMN_OVERWIEW,
+                            PopularMovieContract.PopularMovieEntry.COLUMN_VOTE_AVERAGE,
+                            PopularMovieContract.PopularMovieEntry.COLUMN_RELEASE_DATE,
+                            PopularMovieContract.PopularMovieEntry.COLUMN_FAVORITE
+                    },
+                    PopularMovieContract.PopularMovieEntry.COLUMN_FAVORITE + " = ?",
+                    new String[]{String.valueOf(1)},
+                    null);
 
-        } catch (IOException e) {
-            Log.e(LOG_TAG, ERROR, e);
-            return null;
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
+            JSONArray resultSet = new JSONArray();
+            favoritesCursor.moveToFirst();
+            while (favoritesCursor.isAfterLast() == false) {
+                int totalColumn = favoritesCursor.getColumnCount();
+                JSONObject rowObject = new JSONObject();
+                for (int i = 0; i < totalColumn; i++) {
+                    if (favoritesCursor.getColumnName(i) != null) {
+                        try {
+                            rowObject.put(favoritesCursor.getColumnName(i),
+                                    favoritesCursor.getString(i));
+                        } catch (Exception e) {
+                            Log.d(LOG_TAG, e.getMessage());
+                        }
+                    }
+                }
+                resultSet.put(rowObject);
+                favoritesCursor.moveToNext();
             }
-            if (reader != null) {
+
+            favoritesCursor.close();
+            final String TAG_MOVIE_ID = "_id";
+            final String TAG_ORIGINAL_TITLE = "original_title";
+            //movie poster image thumbnail
+            final String TAG_POSTER_PATH = "poster_path";
+            //A plot synopsis (called overview in the api)
+            final String TAG_OVERVIEW = "overview";
+            //user rating (called vote_average in the api)
+            final String TAG_VOTE_AVERAGE = "vote_average";
+            final String TAG_RELEASE_DATE = "release_date";
+            final String TAG_FAVORITE = "favorite";
+
+            MoviePoster[] moviePosters = new MoviePoster[resultSet.length()];
+            for (int i = 0; i < resultSet.length(); i++) {
+                moviePosters[i] = new MoviePoster();
+                JSONObject movieInfo = resultSet.optJSONObject(i);
+
                 try {
-                    reader.close();
-                } catch (final IOException e) {
-                    Log.e(LOG_TAG, ERROR_CLOSING_STREAM, e);
+                    moviePosters[i].setMoviePosterId(movieInfo.getInt(TAG_MOVIE_ID));
+
+                moviePosters[i].setOriginalTitle(movieInfo.getString(TAG_ORIGINAL_TITLE));
+                moviePosters[i].setPosterPath(movieInfo.getString(TAG_POSTER_PATH));
+                moviePosters[i].setOverview(movieInfo.getString(TAG_OVERVIEW));
+                moviePosters[i].setVoteAverage(movieInfo.getDouble(TAG_VOTE_AVERAGE));
+                moviePosters[i].setReleaseDate(movieInfo.getString(TAG_RELEASE_DATE));
+                moviePosters[i].setFavorite(Integer.valueOf(movieInfo.getString(TAG_FAVORITE)));
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
-        }
 
-        try {
-            return getMoviePosterDataFromJson(moviePosterJsonStr);
-        } catch (JSONException e) {
-            Log.e(LOG_TAG, e.getMessage(), e);
-            e.printStackTrace();
+
+            return moviePosters;
+
+        }else {
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String moviePosterJsonStr;
+
+
+            try {
+                final String MOVIE_POSTER_BASE_URL = "https://api.themoviedb.org/3/movie/";
+                final String QUESTION_MARK = "?";
+                final String API_KEY_PARAM = "api_key";
+                final String URL = MOVIE_POSTER_BASE_URL + orderBy + QUESTION_MARK;
+                Uri builtUri = Uri.parse(URL).buildUpon()
+                        .appendQueryParameter(API_KEY_PARAM, BuildConfig.OPEN_MOVIE_POSTER_API_KEY)
+                        .build();
+                URL url = new URL(builtUri.toString());
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod(GET);
+                urlConnection.connect();
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuilder stringBuilder = new StringBuilder();
+                if (inputStream == null) {
+                    return null;
+                }
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line).append("\n");
+                }
+                if (stringBuilder.length() == 0) {
+                    return null;
+                }
+                moviePosterJsonStr = stringBuilder.toString();
+                Log.v(LOG_TAG, MOVIE_POSTER_STRING + moviePosterJsonStr);
+
+
+            } catch (IOException e) {
+                Log.e(LOG_TAG, ERROR, e);
+                return null;
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        Log.e(LOG_TAG, ERROR_CLOSING_STREAM, e);
+                    }
+                }
+            }
+
+            try {
+                return getMoviePosterDataFromJson(moviePosterJsonStr);
+            } catch (JSONException e) {
+                Log.e(LOG_TAG, e.getMessage(), e);
+                e.printStackTrace();
+            }
         }
         return null;
     }
@@ -194,7 +267,6 @@ class FetchMoviePosterTask extends AsyncTask<String, Void, MoviePoster[]> {
             for (int i = 0; i < moviePosterJsonArray.length(); i++) {
             moviePosters[i] = new MoviePoster();
             JSONObject movieInfo = moviePosterJsonArray.optJSONObject(i);
-
             moviePosters[i].setMoviePosterId(movieInfo.getInt(TAG_MOVIE_ID));
             moviePosters[i].setOriginalTitle(movieInfo.getString(TAG_ORIGINAL_TITLE));
             moviePosters[i].setPosterPath(movieInfo.getString(TAG_POSTER_PATH));

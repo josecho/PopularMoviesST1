@@ -12,10 +12,12 @@
     <string name="pref_orders_label">Order by</string>
     <string name="pref_units_label_popularity_desc">Popularity descending</string>
     <string name="pref_units_label_vote_average_desc">Vote average desdending</string>
+    <string name="pref_units_label_favorites">Favorites</string>
     <string name="pref_orders_key" translatable="false">orderby</string>
     <string name="pref_popularity_desc" translatable="false">popular</string>
     <string name="pref_order_default" translatable="false">popular</string>
     <string name="pref_vote_average_desc" translatable="false">top_rated</string>
+    <string name="pref_favorites" translatable="false">favorites</string>
     <string name="movie_poster">MOVIE_POSTER</string>
     <string name="no_synopsis_found">Synopsis not found</string>
     <string name="no_title_found">Title not found</string>
