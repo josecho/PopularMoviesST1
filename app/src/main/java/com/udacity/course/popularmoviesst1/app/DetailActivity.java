@@ -16,8 +16,10 @@
 
 package com.udacity.course.popularmoviesst1.app;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -34,7 +36,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,15 +46,22 @@ import com.linearlistview.LinearListView;
 import com.squareup.picasso.Picasso;
 import com.udacity.course.popularmoviesst1.app.adapter.ReviewAdapter;
 import com.udacity.course.popularmoviesst1.app.adapter.VideoAdapter;
+import com.udacity.course.popularmoviesst1.app.data.PopularMovieContract;
 import com.udacity.course.popularmoviesst1.app.model.MoviePoster;
 import com.udacity.course.popularmoviesst1.app.model.Review;
 import com.udacity.course.popularmoviesst1.app.model.Video;
 
 import java.util.ArrayList;
 
+import static android.graphics.Color.RED;
+import static android.graphics.Color.YELLOW;
+
 public class DetailActivity extends AppCompatActivity {
 
     private static final String INTERNET_CONNECTION_NOT_PRESENT = "Internet Connection Not Present";
+
+    ScrollView mScrollView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +72,33 @@ public class DetailActivity extends AppCompatActivity {
                     .add(R.id.container, new DetailFragment())
                     .commit();
         }
+
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        mScrollView = (ScrollView) findViewById(R.id.nc_view);
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putIntArray("ARTICLE_SCROLL_POSITION",
+                new int[]{ mScrollView.getScrollX(), mScrollView.getScrollY()});
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mScrollView = (ScrollView) findViewById(R.id.nc_view);
+        if (savedInstanceState != null) {
+            final int[] position = savedInstanceState.getIntArray("ARTICLE_SCROLL_POSITION");
+            if (position != null)
+                mScrollView.post(new Runnable() {
+                    public void run() {
+                        mScrollView.scrollTo(position[0], position[1]);
+                    }
+                });
+        }
+    }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -89,6 +126,7 @@ public class DetailActivity extends AppCompatActivity {
      */
     public static class DetailFragment extends Fragment {
 
+
         private static final String LOG_TAG = DetailFragment.class.getSimpleName();
 
         private static final String MOVIE_POSTER_SHARE_HASHTAG = " #MoviePosterApp";
@@ -105,8 +143,11 @@ public class DetailActivity extends AppCompatActivity {
 
 
         public DetailFragment() {
+
+
             setHasOptionsMenu(true);
         }
+
 
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -123,7 +164,23 @@ public class DetailActivity extends AppCompatActivity {
                 TextView tvOverView = rootView.findViewById(R.id.tv_Over_View);
                 TextView tvVoteAverage = rootView.findViewById(R.id.tv_Vote_Average);
 
+                Button videoButton = rootView.findViewById(R.id.favorite_button);
                 moviePoster = intent.getParcelableExtra(getString(R.string.movie_poster));
+                //videoButton.setTag(moviePoster.getMoviePosterId());
+                videoButton.setOnClickListener(mVideoButtonOnClickListener);
+
+                Cursor cursor = getActivity().getContentResolver().query(
+                        PopularMovieContract.PopularMovieEntry.CONTENT_URI,
+                        null,   // projection
+                        PopularMovieContract.PopularMovieEntry._ID + " = " + moviePoster.getMoviePosterId(),
+                        null,   // Values for the "where" clause
+                        null    // sort order
+                );
+                if(cursor.moveToFirst()){
+                    String favorite = cursor.getString(cursor.getColumnIndex(PopularMovieContract.PopularMovieEntry.COLUMN_FAVORITE));
+                    moviePoster.setFavorite(Integer.valueOf(favorite));
+                    adaptVideoButton(videoButton);
+                }
 
                 if((moviePoster.getOriginalTitle().isEmpty())){
                     tvOriginalTitle.setText(R.string.no_title_found);
@@ -163,6 +220,74 @@ public class DetailActivity extends AppCompatActivity {
                 linListViewReviews.setAdapter(reviewAdapter);
             }
             return rootView;
+        }
+
+        private final View.OnClickListener mVideoButtonOnClickListener = new View.OnClickListener() {
+            public void onClick(View view) {
+
+                Button videoButton = view.findViewById(R.id.favorite_button);
+
+                setVideoButton(videoButton);
+
+                Log.d(LOG_TAG, "ActivityNotFoundException. Could not find activity to handle ");
+
+            }
+        };
+
+        private void adaptVideoButton(Button videoButton) {
+            if(moviePoster.getFavorite()==1) {
+                videoButton.setTextColor(YELLOW);
+                videoButton.setText("Is favorite");
+                ContentValues updatedValues = new ContentValues();
+                updatedValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_FAVORITE, 1);
+                Integer id = moviePoster.getMoviePosterId();
+                int count = getActivity().getContentResolver().update(
+                        PopularMovieContract.PopularMovieEntry.CONTENT_URI, updatedValues, PopularMovieContract.PopularMovieEntry._ID + "= ?",
+                        new String[]{Long.toString(id)});
+                Log.d(LOG_TAG, "update:  " + count);
+                moviePoster.setFavorite(1);
+
+            }else{
+                videoButton.setTextColor(RED);
+                videoButton.setText("MARK AS FAVORITE");
+                ContentValues updatedValues = new ContentValues();
+                //updatedValues.put(PopularMovieContract.VideosEntry._ID, vidoeosRowId);
+                updatedValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_FAVORITE, 0);
+                Integer id = moviePoster.getMoviePosterId();
+                int count = getActivity().getContentResolver().update(
+                        PopularMovieContract.PopularMovieEntry.CONTENT_URI, updatedValues, PopularMovieContract.PopularMovieEntry._ID + "= ?",
+                        new String[]{Long.toString(id)});
+                Log.d(LOG_TAG, "update:  " + count);
+                moviePoster.setFavorite(0);
+            }
+        }
+
+        private void setVideoButton(Button videoButton) {
+            if(moviePoster.getFavorite()==0) {
+                videoButton.setTextColor(YELLOW);
+                videoButton.setText("Is favorite");
+                ContentValues updatedValues = new ContentValues();
+                updatedValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_FAVORITE, 1);
+                Integer id = moviePoster.getMoviePosterId();
+                int count = getActivity().getContentResolver().update(
+                        PopularMovieContract.PopularMovieEntry.CONTENT_URI, updatedValues, PopularMovieContract.PopularMovieEntry._ID + "= ?",
+                        new String[]{Long.toString(id)});
+                Log.d(LOG_TAG, "update:  " + count);
+                moviePoster.setFavorite(1);
+
+            }else{
+                videoButton.setTextColor(RED);
+                videoButton.setText("MARK AS FAVORITE");
+                ContentValues updatedValues = new ContentValues();
+                //updatedValues.put(PopularMovieContract.VideosEntry._ID, vidoeosRowId);
+                updatedValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_FAVORITE, 0);
+                Integer id = moviePoster.getMoviePosterId();
+                int count = getActivity().getContentResolver().update(
+                        PopularMovieContract.PopularMovieEntry.CONTENT_URI, updatedValues, PopularMovieContract.PopularMovieEntry._ID + "= ?",
+                        new String[]{Long.toString(id)});
+                Log.d(LOG_TAG, "update:  " + count);
+                moviePoster.setFavorite(0);
+            }
         }
 
         @Override

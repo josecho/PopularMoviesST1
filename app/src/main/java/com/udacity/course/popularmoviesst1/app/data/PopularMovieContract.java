@@ -23,7 +23,7 @@ import android.provider.BaseColumns;
 /**
  * Defines table and column names for the weather database.
  */
-class PopularMovieContract {
+public class PopularMovieContract {
 
     // The "Content authority" is a name for the entire content provider, similar to the
     // relationship between a domain name and its website.  A convenient string to use for the
@@ -51,9 +51,6 @@ class PopularMovieContract {
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_POPULAR_MOVIES;
 
         public static final String TABLE_NAME = "popularMovies";
-        // "id":19404 Popular Movie id as returned by API,
-        // Column with the foreign key into the videos and reviews tables.
-        public static final String COLUMN_POPULAR_MOVIE_ID = "movie_id";
         //"title":"The Shawshank Redemption"
         public static final String COLUMN_ORIGINAL_TITLE = "original_title";
         //"poster_path":"\/9O7gLzmreU0nGkIB6K3BsJbzvNv.jpg" in the api
@@ -64,6 +61,7 @@ class PopularMovieContract {
         public static final String COLUMN_VOTE_AVERAGE = "vote_average";
         //called release_date":"1995-10-20" in the api
         public static final String COLUMN_RELEASE_DATE = "release_date";
+        public static final String COLUMN_FAVORITE = "favorite";
 
         public static Uri buildPopularMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
@@ -82,7 +80,7 @@ class PopularMovieContract {
 
         public static final String TABLE_NAME = "videos";
         //  Video id as returned by API,
-        public static final String COLUMN_VIDEO_ID = "video_id";
+        //public static final String COLUMN_VIDEO_ID = "video_id";
         public static final String COLUMN_POPULAR_MOVIE_ID = "popular_movie_id";
         public static final String COLUMN_ISO_639_1 = "iso_639_1";
         public static final String COLUMN_ISO_3166_1 = "iso_3166_1";
@@ -98,9 +96,9 @@ class PopularMovieContract {
         }
 
         //TODO
-        public static Uri buildFavoriteVideos(String favorites) {
+       /* public static Uri buildFavoriteVideos(String favorites) {
             return CONTENT_URI.buildUpon().appendPath(favorites).build();
-        }
+        }*/
 
 
     }
@@ -117,7 +115,7 @@ class PopularMovieContract {
 
         public static final String TABLE_NAME = "reviews";
         //  Review id as returned by API,
-        public static final String COLUMN_REVIEW_ID = "review_id";
+        //public static final String COLUMN_REVIEW_ID = "review_id";
         public static final String COLUMN_POPULAR_MOVIE_ID = "popular_movie_id";
         public static final String COLUMN_AUTHOR = "author";
         public static final String COLUMN_CONTENT = "content";

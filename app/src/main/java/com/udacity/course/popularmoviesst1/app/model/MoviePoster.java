@@ -21,9 +21,19 @@ public class MoviePoster implements Parcelable {
     private Integer moviePosterId;
     private String originalTitle;
     private String posterPath;
+
+    public Integer getFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(Integer favorite) {
+        this.favorite = favorite;
+    }
+
     private String overview;
     private Double voteAverage;
     private String releaseDate;
+    private Integer favorite;
     private List<Review> reviews = new ArrayList<>();
     private List<Video> videos = new ArrayList<>();
 
@@ -117,6 +127,7 @@ public class MoviePoster implements Parcelable {
         overview = in.readString();
         voteAverage = (Double) in.readValue(Double.class.getClassLoader());
         releaseDate = in.readString();
+        favorite = in.readInt();
     }
 
 
@@ -135,6 +146,7 @@ public class MoviePoster implements Parcelable {
         parcel.writeString(releaseDate);
         parcel.writeList(reviews);
         parcel.writeList(videos);
+        parcel.writeInt(favorite);
     }
 
     public static final Parcelable.Creator<MoviePoster> CREATOR = new Parcelable.Creator<MoviePoster>() {

@@ -82,12 +82,13 @@ public class TestDb extends AndroidTestCase {
         // Build a HashSet of all of the column names we want to look for
         final HashSet<String> popularMovieColumnHashSet = new HashSet<>();
         //popularMovieColumnHashSet.add(PopularMovieContract.PopularMovieEntry._ID);
-        popularMovieColumnHashSet.add(PopularMovieContract.PopularMovieEntry.COLUMN_POPULAR_MOVIE_ID);
+        popularMovieColumnHashSet.add(PopularMovieContract.PopularMovieEntry._ID);
         popularMovieColumnHashSet.add(PopularMovieContract.PopularMovieEntry.COLUMN_ORIGINAL_TITLE);
         popularMovieColumnHashSet.add(PopularMovieContract.PopularMovieEntry.COLUMN_POSTER_MAP);
         popularMovieColumnHashSet.add(PopularMovieContract.PopularMovieEntry.COLUMN_OVERWIEW);
         popularMovieColumnHashSet.add(PopularMovieContract.PopularMovieEntry.COLUMN_VOTE_AVERAGE);
         popularMovieColumnHashSet.add(PopularMovieContract.PopularMovieEntry.COLUMN_RELEASE_DATE);
+        popularMovieColumnHashSet.add(PopularMovieContract.PopularMovieEntry.COLUMN_FAVORITE);
         int columnNameIndex = c.getColumnIndex("name");
         do {
             String columnName = c.getString(columnNameIndex);
@@ -135,7 +136,7 @@ public class TestDb extends AndroidTestCase {
                 c.moveToFirst());
         // Build a HashSet of all of the column names we want to look for
         final HashSet<String> reviewsColumnHashSet = new HashSet<>();
-        reviewsColumnHashSet.add(PopularMovieContract.ReviewsEntry.COLUMN_REVIEW_ID);
+        reviewsColumnHashSet.add(PopularMovieContract.ReviewsEntry._ID);
         reviewsColumnHashSet.add(PopularMovieContract.ReviewsEntry.COLUMN_POPULAR_MOVIE_ID);
         reviewsColumnHashSet.add(PopularMovieContract.ReviewsEntry.COLUMN_AUTHOR);
         reviewsColumnHashSet.add(PopularMovieContract.ReviewsEntry.COLUMN_CONTENT);
@@ -241,7 +242,7 @@ public class TestDb extends AndroidTestCase {
 
         Integer column_popular_movie_id=0;
         if (popularMovieCursor.moveToFirst()){
-            column_popular_movie_id = popularMovieCursor.getInt(popularMovieCursor.getColumnIndex(PopularMovieContract.PopularMovieEntry.COLUMN_POPULAR_MOVIE_ID));
+            column_popular_movie_id = popularMovieCursor.getInt(popularMovieCursor.getColumnIndex(PopularMovieContract.PopularMovieEntry._ID));
         }
         assertEquals(TestUtilities.TEST_POPULAR_MOVIE_ID,column_popular_movie_id);
 

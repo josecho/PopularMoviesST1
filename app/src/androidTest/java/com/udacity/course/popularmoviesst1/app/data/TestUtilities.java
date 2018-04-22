@@ -48,13 +48,14 @@ public class TestUtilities extends AndroidTestCase {
 
     static ContentValues createPopularMoviesValues(Integer popularMovieId) {
         ContentValues popularMoviesValues = new ContentValues();
-        popularMoviesValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_POPULAR_MOVIE_ID, popularMovieId);
+        popularMoviesValues.put(PopularMovieContract.PopularMovieEntry._ID, popularMovieId);
         popularMoviesValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_ORIGINAL_TITLE, "The Big-Hearted Will Take Away the Bride");
         popularMoviesValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_POSTER_MAP, "\\/uC6TTUhPpQCmgldGyYveKRAu8JN.jpg");
         popularMoviesValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_OVERWIEW, "Raj is a rich, carefree, happy-go-lucky second generation NRI. Simran ..." +
                 " in the medieval world. ");
         popularMoviesValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_VOTE_AVERAGE, 9.2);
         popularMoviesValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_RELEASE_DATE, "1995-10-20");
+        popularMoviesValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_FAVORITE, 1);
         return popularMoviesValues;
     }
 
@@ -76,7 +77,7 @@ public class TestUtilities extends AndroidTestCase {
     static ContentValues createVideosValues(String videoId,long column_popular_movie_id) {
         // Create a new map of values, where column names are the keys
         ContentValues testValues = new ContentValues();
-        testValues.put(PopularMovieContract.VideosEntry.COLUMN_VIDEO_ID, videoId);
+        testValues.put(PopularMovieContract.VideosEntry._ID, videoId);
         testValues.put(PopularMovieContract.VideosEntry.COLUMN_POPULAR_MOVIE_ID, column_popular_movie_id);
         testValues.put(PopularMovieContract.VideosEntry.COLUMN_ISO_639_1, "en");
         testValues.put(PopularMovieContract.VideosEntry.COLUMN_ISO_3166_1, "US");
@@ -92,7 +93,7 @@ public class TestUtilities extends AndroidTestCase {
 
     static ContentValues createReviewsValues(Integer column_popular_movie_id) {
         ContentValues testValues = new ContentValues();
-        testValues.put(PopularMovieContract.ReviewsEntry.COLUMN_REVIEW_ID, "56e4290b92514172c7001002");
+        testValues.put(PopularMovieContract.ReviewsEntry._ID, "56e4290b92514172c7001002");
         testValues.put(PopularMovieContract.ReviewsEntry.COLUMN_POPULAR_MOVIE_ID, column_popular_movie_id);
         testValues.put(PopularMovieContract.ReviewsEntry.COLUMN_AUTHOR, "Andres Gomez");
         testValues.put(PopularMovieContract.ReviewsEntry.COLUMN_CONTENT, "One of the best movies Disney has created in the last years. Smart plot with a" +

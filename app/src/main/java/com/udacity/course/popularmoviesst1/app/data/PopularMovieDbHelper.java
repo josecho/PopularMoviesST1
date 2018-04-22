@@ -32,9 +32,9 @@ class PopularMovieDbHelper extends SQLiteOpenHelper {
     private final String LOG_TAG = PopularMovieDbHelper.class.getSimpleName();
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 3;
 
-    static final String DATABASE_NAME = "popularFilms.db";
+    static final String DATABASE_NAME = "peliculas.db";
 
     public PopularMovieDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -43,13 +43,10 @@ class PopularMovieDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        //onUpgrade(sqLiteDatabase,1,2);
-
         Log.d(LOG_TAG, "Creating tables ****************************** ");
 
         final String SQL_CREATE_VIDEOS_TABLE = "CREATE TABLE " + VideosEntry.TABLE_NAME + " (" +
-                VideosEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                VideosEntry.COLUMN_VIDEO_ID + " TEXT," +
+                VideosEntry._ID + " TEXT PRIMARY KEY UNIQUE," +
                 VideosEntry.COLUMN_POPULAR_MOVIE_ID + " INTEGER NOT NULL, " +
                 VideosEntry.COLUMN_ISO_639_1 + " TEXT, " +
                 VideosEntry.COLUMN_ISO_3166_1 + " TEXT, " +
@@ -58,36 +55,32 @@ class PopularMovieDbHelper extends SQLiteOpenHelper {
                 VideosEntry.COLUMN_SITE + " TEXT, " +
                 VideosEntry.COLUMN_SIZE + " INTEGER, " +
                 VideosEntry.COLUMN_TYPE + " TEXT, " +
-                VideosEntry.COLUMN_FAVORITE + " INTEGER DEFAULT 0 " +
+                VideosEntry.COLUMN_FAVORITE + " INTEGER DEFAULT 0, " +
+                "FOREIGN KEY (" + VideosEntry.COLUMN_POPULAR_MOVIE_ID + ") REFERENCES " +
+                PopularMovieEntry.TABLE_NAME + " (" + PopularMovieEntry._ID + ") ON DELETE CASCADE" +
                 " );";
+
         Log.d(LOG_TAG, SQL_CREATE_VIDEOS_TABLE);
 
         final String SQL_CREATE_REVIEWS_TABLE = "CREATE TABLE " + ReviewsEntry.TABLE_NAME + " (" +
-                ReviewsEntry.COLUMN_REVIEW_ID + " TEXT PRIMARY KEY UNIQUE," +
+                ReviewsEntry._ID + " TEXT PRIMARY KEY UNIQUE," +
                 ReviewsEntry.COLUMN_POPULAR_MOVIE_ID + " INTEGER NOT NULL, " +
                 ReviewsEntry.COLUMN_AUTHOR + " TEXT, " +
                 ReviewsEntry.COLUMN_CONTENT + " TEXT, " +
-                ReviewsEntry.COLUMN_URL + " TEXT " +
+                ReviewsEntry.COLUMN_URL + " TEXT, " +
+                "FOREIGN KEY (" + ReviewsEntry.COLUMN_POPULAR_MOVIE_ID + ") REFERENCES " +
+                PopularMovieEntry.TABLE_NAME + " (" + PopularMovieEntry._ID + ") ON DELETE CASCADE" +
                 " );";
 
         final String SQL_CREATE_POPULAR_MOVIE_TABLE = "CREATE TABLE " + PopularMovieEntry.TABLE_NAME + " (" +
-                // Why AutoIncrement here, and not above?
-                // Unique keys will be auto-generated in either case.
-                //PopularMovieEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                //PopularMovieEntry.COLUMN_POPULAR_MOVIE_ID + " INTEGER NOT NULL, " +
-                PopularMovieEntry.COLUMN_POPULAR_MOVIE_ID + " INTEGER PRIMARY KEY ," +
+                PopularMovieEntry._ID + " INTEGER PRIMARY KEY UNIQUE," +
                 PopularMovieEntry.COLUMN_ORIGINAL_TITLE + " STRING, " +
                 PopularMovieEntry.COLUMN_POSTER_MAP + " STRING, " +
                 PopularMovieEntry.COLUMN_OVERWIEW + " STRING, " +
                 PopularMovieEntry.COLUMN_VOTE_AVERAGE + " REAL NOT NULL, " +
                 PopularMovieEntry.COLUMN_RELEASE_DATE + " STRING, " +
-                // Set up the location column as a foreign key to VIDEOS table.
-                " FOREIGN KEY (" + PopularMovieEntry.COLUMN_POPULAR_MOVIE_ID + ") REFERENCES " +
-                VideosEntry.TABLE_NAME + " (" + VideosEntry.COLUMN_POPULAR_MOVIE_ID + "), " +
-                // Set up the location column as a foreign key to VIDEOS table.
-                " FOREIGN KEY (" + PopularMovieEntry.COLUMN_POPULAR_MOVIE_ID + ") REFERENCES " +
-                ReviewsEntry.TABLE_NAME + " (" + ReviewsEntry.COLUMN_POPULAR_MOVIE_ID + ") " +
-                ");";
+                PopularMovieEntry.COLUMN_FAVORITE + " INTEGER DEFAULT 0 " +
+                " );";
 
         sqLiteDatabase.execSQL(SQL_CREATE_VIDEOS_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_REVIEWS_TABLE);

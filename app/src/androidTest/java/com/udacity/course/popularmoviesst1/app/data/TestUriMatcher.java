@@ -36,7 +36,7 @@ public class TestUriMatcher extends AndroidTestCase {
     // content://com.udacity.course.popularmoviesst1.app/video"
     private static final Uri TEST_VIDEOS_DIR = PopularMovieContract.VideosEntry.CONTENT_URI;
     //TODO
-    private static final Uri TEST_FAVORITE_VIDEOS_DIR = PopularMovieContract.VideosEntry.buildFavoriteVideos("favorites");
+    //private static final Uri TEST_FAVORITE_VIDEOS_DIR = PopularMovieContract.VideosEntry.buildFavoriteVideos("favorites");
 
 
     /*
@@ -50,9 +50,9 @@ public class TestUriMatcher extends AndroidTestCase {
         assertEquals("Error: The POPULAR MOVIE URI was matched incorrectly.",
                 testMatcher.match(TEST_POPULAR_MOVIE_DIR), PopularMovieProvider.POPULAR_MOVIES);
         assertEquals("Error: The VIDEO was matched incorrectly.",
-                testMatcher.match(TEST_VIDEOS_DIR), PopularMovieProvider.VIDEO);
-        assertEquals("Error: The FAVORITE VIDEO was matched incorrectly.",
-                testMatcher.match(TEST_FAVORITE_VIDEOS_DIR), PopularMovieProvider.FAVORITES_VIDEOS);
+                testMatcher.match(TEST_VIDEOS_DIR), PopularMovieProvider.VIDEOS);
+       /* assertEquals("Error: The FAVORITE VIDEO was matched incorrectly.",
+                testMatcher.match(TEST_FAVORITE_VIDEOS_DIR), PopularMovieProvider.FAVORITES_VIDEOS);*/
 
     }
 }

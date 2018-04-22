@@ -1,10 +1,15 @@
 package com.udacity.course.popularmoviesst1.app;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.udacity.course.popularmoviesst1.app.adapter.ImageAdapter;
+import com.udacity.course.popularmoviesst1.app.data.PopularMovieContract;
 import com.udacity.course.popularmoviesst1.app.model.MoviePoster;
 
 import org.json.JSONArray;
@@ -17,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Vector;
 
 /**
  * Created by josecho on 4/8/18.
@@ -31,8 +37,10 @@ class FetchMoviePosterTask extends AsyncTask<String, Void, MoviePoster[]> {
     private final String LOG_TAG = FetchMoviePosterTask.class.getSimpleName();
 
     private final ImageAdapter imageAdapter;
+    private Context mContext;
 
-    public FetchMoviePosterTask(ImageAdapter imageAdapter) {
+    public FetchMoviePosterTask(Context context,ImageAdapter imageAdapter) {
+        this.mContext = context;
         this.imageAdapter = imageAdapter;
     }
 
@@ -99,6 +107,56 @@ class FetchMoviePosterTask extends AsyncTask<String, Void, MoviePoster[]> {
         return null;
     }
 
+    long addVideo(String videoId, Integer popular_movieId, String addIso6391, String addIso31661, String addKey,
+                  String videoName, String site, Integer addSize, String type, Integer favorite) {
+        long locationId;
+
+        // First, check if the location with this city name exists in the db
+        Cursor locationCursor = mContext.getContentResolver().query(
+                PopularMovieContract.VideosEntry.CONTENT_URI,
+                new String[]{PopularMovieContract.VideosEntry._ID},
+                PopularMovieContract.VideosEntry._ID + " = ?",
+                new String[]{videoId},
+                null);
+
+        if (locationCursor.moveToFirst()) {
+            int videoIndex = locationCursor.getColumnIndex(PopularMovieContract.VideosEntry._ID);
+            locationId = locationCursor.getLong(videoIndex);
+        } else {
+            // Now that the content provider is set up, inserting rows of data is pretty simple.
+            // First create a ContentValues object to hold the data you want to insert.
+            ContentValues videoValues = new ContentValues();
+
+            // Then add the data, along with the corresponding name of the data type,
+            // so the content provider knows what kind of value is being inserted.
+            videoValues.put(PopularMovieContract.VideosEntry._ID, videoId);
+            videoValues.put(PopularMovieContract.VideosEntry.COLUMN_POPULAR_MOVIE_ID, popular_movieId);
+            videoValues.put(PopularMovieContract.VideosEntry.COLUMN_ISO_639_1, addIso6391);
+            videoValues.put(PopularMovieContract.VideosEntry.COLUMN_ISO_3166_1, addIso31661);
+            videoValues.put(PopularMovieContract.VideosEntry.COLUMN_KEY, addKey);
+            videoValues.put(PopularMovieContract.VideosEntry.COLUMN_NAME, videoName);
+            videoValues.put(PopularMovieContract.VideosEntry.COLUMN_SITE, site);
+            videoValues.put(PopularMovieContract.VideosEntry.COLUMN_SIZE, 1080);
+            videoValues.put(PopularMovieContract.VideosEntry.COLUMN_TYPE, type);
+            videoValues.put(PopularMovieContract.VideosEntry.COLUMN_FAVORITE, 1);
+
+            // Finally, insert location data into the database.
+            Uri insertedUri = mContext.getContentResolver().insert(
+                    PopularMovieContract.VideosEntry.CONTENT_URI,
+                    videoValues
+            );
+
+            // The resulting URI contains the ID for the row.  Extract the locationId from the Uri.
+            locationId = ContentUris.parseId(insertedUri);
+        }
+
+        locationCursor.close();
+        // Wait, that worked?  Yes!
+        return locationId;
+    }
+
+
+
     /**
      * Take the String representing the complete forecast in JSON Format and
      * pull out the data we need to construct the Strings needed for the wireframes.
@@ -122,22 +180,73 @@ class FetchMoviePosterTask extends AsyncTask<String, Void, MoviePoster[]> {
         final String TAG_VOTE_AVERAGE = "vote_average";
         final String TAG_RELEASE_DATE = "release_date";
 
+        Cursor locationCursor;
+        Cursor favoriteCursor;
 
-        JSONObject moviePosterJson = new JSONObject(moviesJsonStr);
-        JSONArray moviePosterJsonArray = moviePosterJson.optJSONArray(TAG_RESULTS);
-        MoviePoster[] moviePosters = new MoviePoster[moviePosterJsonArray.length()];
+        try {
+            JSONObject moviePosterJson = new JSONObject(moviesJsonStr);
+            JSONArray moviePosterJsonArray = moviePosterJson.optJSONArray(TAG_RESULTS);
+            MoviePoster[] moviePosters = new MoviePoster[moviePosterJsonArray.length()];
 
-        for (int i = 0; i < moviePosterJsonArray.length(); i++) {
+            // Insert the new popular movies information into the database
+            Vector<ContentValues> cVVector = new Vector<ContentValues>(moviePosterJsonArray.length());
+
+            for (int i = 0; i < moviePosterJsonArray.length(); i++) {
             moviePosters[i] = new MoviePoster();
             JSONObject movieInfo = moviePosterJsonArray.optJSONObject(i);
+
             moviePosters[i].setMoviePosterId(movieInfo.getInt(TAG_MOVIE_ID));
             moviePosters[i].setOriginalTitle(movieInfo.getString(TAG_ORIGINAL_TITLE));
             moviePosters[i].setPosterPath(movieInfo.getString(TAG_POSTER_PATH));
             moviePosters[i].setOverview(movieInfo.getString(TAG_OVERVIEW));
             moviePosters[i].setVoteAverage(movieInfo.getDouble(TAG_VOTE_AVERAGE));
             moviePosters[i].setReleaseDate(movieInfo.getString(TAG_RELEASE_DATE));
+
+
+            locationCursor = mContext.getContentResolver().query(
+                        PopularMovieContract.PopularMovieEntry.CONTENT_URI,
+                        new String[]{PopularMovieContract.PopularMovieEntry._ID},
+                        PopularMovieContract.PopularMovieEntry._ID + " = ?",
+                        new String[]{String.valueOf(movieInfo.getInt(TAG_MOVIE_ID))},
+                        null);
+
+            if (!locationCursor.moveToFirst()){
+                ContentValues popularMoviesValues = new ContentValues();
+                popularMoviesValues.put(PopularMovieContract.PopularMovieEntry._ID,movieInfo.getInt(TAG_MOVIE_ID));
+                popularMoviesValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_ORIGINAL_TITLE,movieInfo.getString(TAG_ORIGINAL_TITLE));
+                popularMoviesValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_POSTER_MAP,movieInfo.getString(TAG_POSTER_PATH));
+                popularMoviesValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_OVERWIEW,movieInfo.getString(TAG_OVERVIEW));
+                popularMoviesValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_VOTE_AVERAGE,movieInfo.getDouble(TAG_VOTE_AVERAGE));
+                popularMoviesValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_RELEASE_DATE,movieInfo.getString(TAG_RELEASE_DATE));
+                popularMoviesValues.put(PopularMovieContract.PopularMovieEntry.COLUMN_FAVORITE,0);
+                cVVector.add(popularMoviesValues);
+                Uri insertedUri= mContext.getContentResolver().insert(
+                        PopularMovieContract.PopularMovieEntry.CONTENT_URI,
+                        popularMoviesValues
+                );
+                moviePosters[i].setFavorite(0);
+                Log.d(LOG_TAG, "PopularMovieEntry insertedUri. " + insertedUri + " Inserted");
+            }
+
+            favoriteCursor = mContext.getContentResolver().query(
+                        PopularMovieContract.PopularMovieEntry.CONTENT_URI,
+                        new String[]{PopularMovieContract.PopularMovieEntry._ID,PopularMovieContract.PopularMovieEntry.COLUMN_FAVORITE},
+                        PopularMovieContract.PopularMovieEntry._ID + " = ?",
+                        new String[]{String.valueOf(movieInfo.getInt(TAG_MOVIE_ID))},
+                        null);
+            if (favoriteCursor.moveToFirst()){
+                    Integer index = favoriteCursor.getColumnIndex(PopularMovieContract.PopularMovieEntry.COLUMN_FAVORITE);
+                    Integer favoriteValue = Integer.valueOf(favoriteCursor.getString(index));
+                    moviePosters[i].setFavorite(favoriteValue);
+                    Log.d(LOG_TAG, "index index. " + favoriteValue + " index");
+            }
         }
         return moviePosters;
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
+        }
+        return null;
     }
 
 

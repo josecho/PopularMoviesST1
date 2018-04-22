@@ -29,22 +29,21 @@ public class PopularMovieProvider extends ContentProvider {
     // The URI Matcher used by this content provider.
     private static final UriMatcher sUriMatcher = buildUriMatcher();
 
-    //private WeatherDbHelper mOpenHelper;
     private PopularMovieDbHelper mOpenHelper;
 
     static final int POPULAR_MOVIES = 100;
-    static final int WEATHER_WITH_LOCATION = 101;
-    static final int WEATHER_WITH_LOCATION_AND_DATE = 102;
-    //static final int LOCATION = 300;
-    static final int VIDEO = 300;
-    static final int FAVORITES_VIDEOS = 301;
+    static final int POPULAR_MOVIES_ITEM = 101;
+    static final int VIDEOS = 200;
+    private static final int VIDEOS_ITEM = 201;
+    static final int FAVORITES_VIDEOS = 203;
+    private static final int REVIEWS = 300;
+    private static final int REVIEWS_ITEM = 301;
 
-    //private static final SQLiteQueryBuilder sWeatherByLocationSettingQueryBuilder;
+
     private static final SQLiteQueryBuilder sPopularMovieSettingQueryBuilder;
 
 
     static{
-        //sWeatherByLocationSettingQueryBuilder = new SQLiteQueryBuilder();
         sPopularMovieSettingQueryBuilder = new SQLiteQueryBuilder();
         
         //This is an inner join which looks like
@@ -53,32 +52,15 @@ public class PopularMovieProvider extends ContentProvider {
                 PopularMovieContract.PopularMovieEntry.TABLE_NAME + " INNER JOIN " +
                         PopularMovieContract.VideosEntry.TABLE_NAME +
                         " ON " + PopularMovieContract.PopularMovieEntry.TABLE_NAME +
-                        "." + PopularMovieContract.PopularMovieEntry.COLUMN_POPULAR_MOVIE_ID +
+                        "." + PopularMovieContract.PopularMovieEntry._ID +
                         " = " + PopularMovieContract.VideosEntry.TABLE_NAME +
                         "." + PopularMovieContract.VideosEntry.COLUMN_POPULAR_MOVIE_ID);
 
     }
 
-
-    /*//location.location_setting = ?
-    private static final String sLocationSettingSelection =
-            WeatherContract.LocationEntry.TABLE_NAME+
-                    "." + WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ? ";*/
-    //video = ?
     private static final String sVideosSettingSelection =
             PopularMovieContract.VideosEntry.TABLE_NAME+
                     "." + PopularMovieContract.VideosEntry.COLUMN_POPULAR_MOVIE_ID+ " = ? ";
-
-    //location.location_setting = ? AND date >= ?
-    /*private static final String sLocationSettingWithStartDateSelection =
-            WeatherContract.LocationEntry.TABLE_NAME+
-                    "." + WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ? AND " +
-                    WeatherContract.WeatherEntry.COLUMN_DATE + " >= ? ";*/
-
-    /*private static final String sLocationSettingAndDaySelection =
-            PopularMovieContract.VideosEntry.TABLE_NAME+
-                    "." + WeatherContractte.LocationEntry.COLUMN_LOCATION_SETTING + " = ? AND " +
-                    WeatherContract.WeatherEntry.COLUMN_DATE + " = ? ";*/
 
     private static final String favoritesVideosSelection =
             PopularMovieContract.VideosEntry.TABLE_NAME+
@@ -94,54 +76,7 @@ public class PopularMovieProvider extends ContentProvider {
                 null,
                 sortOrder
         );
-
     }
-
-   /* private Cursor getPopularMoviesSetting(Uri uri, String[] projection, String sortOrder){
-
-    }*/
-
-    /*private Cursor getWeatherByLocationSetting(Uri uri, String[] projection, String sortOrder) {
-        String locationSetting = WeatherContract.WeatherEntry.getLocationSettingFromUri(uri);
-        long startDate = WeatherContract.WeatherEntry.getStartDateFromUri(uri);
-
-        String[] selectionArgs;
-        String selection;
-
-        if (startDate == 0) {
-            selection = sLocationSettingSelection;
-            selectionArgs = new String[]{locationSetting};
-        } else {
-            selectionArgs = new String[]{locationSetting, Long.toString(startDate)};
-            selection = sLocationSettingWithStartDateSelection;
-        }
-
-        return sWeatherByLocationSettingQueryBuilder.query(mOpenHelper.getReadableDatabase(),
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                sortOrder
-        );
-    }*/
-
-
-
-    /*private Cursor getWeatherByLocationSettingAndDate(
-            Uri uri, String[] projection, String sortOrder) {
-        String locationSetting = WeatherContract.WeatherEntry.getLocationSettingFromUri(uri);
-        long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
-
-        return sWeatherByLocationSettingQueryBuilder.query(mOpenHelper.getReadableDatabase(),
-                projection,
-                sLocationSettingAndDaySelection,
-                new String[]{locationSetting, Long.toString(date)},
-                null,
-                null,
-                sortOrder
-        );
-    }*/
 
     /*
         Students: Here is where you need to create the UriMatcher. This UriMatcher will
@@ -158,10 +93,24 @@ public class PopularMovieProvider extends ContentProvider {
         // 2) Use the addURI function to match each of the types.  Use the constants from
         // WeatherContract to help define the types to the UriMatcher.
         matcher.addURI(authority, PopularMovieContract.PATH_POPULAR_MOVIES, POPULAR_MOVIES);
-        matcher.addURI(authority, PopularMovieContract.PATH_VIDEO, VIDEO);
+
+        matcher.addURI(PopularMovieContract.CONTENT_AUTHORITY, PopularMovieContract
+                .PATH_POPULAR_MOVIES, POPULAR_MOVIES);
+        matcher.addURI(PopularMovieContract.CONTENT_AUTHORITY, PopularMovieContract
+                        .PATH_POPULAR_MOVIES + "/#",
+                POPULAR_MOVIES_ITEM);
+
+        matcher.addURI(PopularMovieContract.CONTENT_AUTHORITY, PopularMovieContract
+                .PATH_VIDEO, VIDEOS);
+        matcher.addURI(PopularMovieContract.CONTENT_AUTHORITY, PopularMovieContract
+                        .PATH_VIDEO + "/#",VIDEOS_ITEM);
         matcher.addURI(authority, PopularMovieContract.PATH_VIDEO+ "/*",FAVORITES_VIDEOS);
 
-
+        matcher.addURI(PopularMovieContract.CONTENT_AUTHORITY, PopularMovieContract
+                .PATH_REVIEW, REVIEWS);
+        matcher.addURI(PopularMovieContract.CONTENT_AUTHORITY, PopularMovieContract
+                        .PATH_REVIEW + "/#",
+                REVIEWS_ITEM);
         // 3) Return the new matcher!
         return matcher;
     }
@@ -189,12 +138,21 @@ public class PopularMovieProvider extends ContentProvider {
 
         switch (match) {
             // Student: Uncomment and fill out these two cases
-            case FAVORITES_VIDEOS:
-                return PopularMovieContract.VideosEntry.CONTENT_TYPE;
+
             case POPULAR_MOVIES:
                 return PopularMovieContract.PopularMovieEntry.CONTENT_TYPE;
-            case VIDEO:
+            case POPULAR_MOVIES_ITEM:
+                return PopularMovieContract.PopularMovieEntry.CONTENT_ITEM_TYPE;
+            case VIDEOS:
                 return PopularMovieContract.VideosEntry.CONTENT_TYPE;
+            case VIDEOS_ITEM:
+                return PopularMovieContract.VideosEntry.CONTENT_ITEM_TYPE;
+            case FAVORITES_VIDEOS:
+                return PopularMovieContract.VideosEntry.CONTENT_TYPE;
+            case REVIEWS:
+                return PopularMovieContract.ReviewsEntry.CONTENT_TYPE;
+            case REVIEWS_ITEM:
+                return PopularMovieContract.ReviewsEntry.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -205,24 +163,10 @@ public class PopularMovieProvider extends ContentProvider {
                         String sortOrder) {
         // Here's the switch statement that, given a URI, will determine what kind of request it is,
         // and query the database accordingly.
+
         Cursor retCursor;
+        String id;
         switch (sUriMatcher.match(uri)) {
-            // "weather/*/*"
-            /*case WEATHER_WITH_LOCATION_AND_DATE:
-            {
-                retCursor = getWeatherByLocationSettingAndDate(uri, projection, sortOrder);
-                break;
-            }*/
-            // "weather/*"
-            /*case WEATHER_WITH_LOCATION: {
-                retCursor = getWeatherByLocationSetting(uri, projection, sortOrder);
-                break;
-            }*/
-            case FAVORITES_VIDEOS: {
-                retCursor = getFavoriteVideos(uri, projection, sortOrder);
-                break;
-            }
-            // "weather"
             case POPULAR_MOVIES: {
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         PopularMovieContract.PopularMovieEntry.TABLE_NAME,
@@ -235,8 +179,7 @@ public class PopularMovieProvider extends ContentProvider {
                 );
                 break;
             }
-            // "location"
-            case VIDEO: {
+            case VIDEOS: {
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         PopularMovieContract.VideosEntry.TABLE_NAME,
                         projection,
@@ -248,12 +191,56 @@ public class PopularMovieProvider extends ContentProvider {
                 );
                 break;
             }
+            case VIDEOS_ITEM: {
+                id = uri.getPathSegments().get(1);
+                retCursor = getItem(PopularMovieContract.VideosEntry.TABLE_NAME,
+                        id, projection, selection, selectionArgs, sortOrder);
+                break;
+            }
+
+            case REVIEWS: {
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        PopularMovieContract.ReviewsEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            }
+            case REVIEWS_ITEM: {
+                id = uri.getPathSegments().get(1);
+                retCursor = getItem(PopularMovieContract.ReviewsEntry.TABLE_NAME,
+                        id, projection, selection, selectionArgs, sortOrder);
+                break;
+            }
+
+            case FAVORITES_VIDEOS: {
+                retCursor = getFavoriteVideos(uri, projection, sortOrder);
+                break;
+            }
 
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
         return retCursor;
+    }
+
+    private Cursor getItem(String tableName, String id, String[] projection, String selection,
+                           String[]
+                                   selectionArgs, String sortOrder) {
+        SQLiteQueryBuilder sqliteQueryBuilder = new SQLiteQueryBuilder();
+        sqliteQueryBuilder.setTables(tableName);
+
+        if (id != null) {
+            sqliteQueryBuilder.appendWhere("_id" + " = " + id);
+        }
+
+        Cursor cursor = sqliteQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+                projection, selection, selectionArgs, null, null, sortOrder);
+        return cursor;
     }
 
     /*
@@ -275,11 +262,20 @@ public class PopularMovieProvider extends ContentProvider {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
             }
-            case VIDEO: {
+            case VIDEOS: {
                 //normalizeDate(values);
                 long _id = db.insert(PopularMovieContract.VideosEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
                     returnUri = PopularMovieContract.VideosEntry.buildVideoUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            case REVIEWS: {
+                long _id = db.insert(PopularMovieContract.ReviewsEntry.TABLE_NAME, null,
+                        values);
+                if (_id > 0)
+                    returnUri = PopularMovieContract.ReviewsEntry.buildReviewUri(_id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
@@ -303,9 +299,13 @@ public class PopularMovieProvider extends ContentProvider {
                 rowsDeleted = db.delete(
                         PopularMovieContract.PopularMovieEntry.TABLE_NAME, selection, selectionArgs);
                 break;
-            case VIDEO:
+            case VIDEOS:
                 rowsDeleted = db.delete(
                         PopularMovieContract.VideosEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case REVIEWS:
+                rowsDeleted = db.delete(PopularMovieContract.ReviewsEntry.TABLE_NAME, selection,
+                        selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -316,14 +316,6 @@ public class PopularMovieProvider extends ContentProvider {
         }
         return rowsDeleted;
     }
-
-   /* private void normalizeDate(ContentValues values) {
-        // normalize the date value
-        if (values.containsKey(WeatherContract.WeatherEntry.COLUMN_DATE)) {
-            long dateValue = values.getAsLong(WeatherContract.WeatherEntry.COLUMN_DATE);
-            values.put(WeatherContract.WeatherEntry.COLUMN_DATE, WeatherContract.normalizeDate(dateValue));
-        }
-    }*/
 
     @Override
     public int update(
@@ -337,8 +329,13 @@ public class PopularMovieProvider extends ContentProvider {
                 rowsUpdated = db.update(PopularMovieContract.PopularMovieEntry.TABLE_NAME, values, selection,
                         selectionArgs);
                 break;
-            case VIDEO:
+            case VIDEOS:
                 rowsUpdated = db.update(PopularMovieContract.VideosEntry.TABLE_NAME, values, selection,
+                        selectionArgs);
+                break;
+            case REVIEWS:
+                rowsUpdated = db.update(PopularMovieContract.ReviewsEntry.TABLE_NAME, values,
+                        selection,
                         selectionArgs);
                 break;
             default:

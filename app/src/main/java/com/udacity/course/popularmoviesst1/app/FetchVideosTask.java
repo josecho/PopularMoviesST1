@@ -1,7 +1,9 @@
 package com.udacity.course.popularmoviesst1.app;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.widget.CardView;
@@ -9,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.udacity.course.popularmoviesst1.app.adapter.VideoAdapter;
+import com.udacity.course.popularmoviesst1.app.data.PopularMovieContract;
 import com.udacity.course.popularmoviesst1.app.model.Video;
 
 import org.json.JSONArray;
@@ -23,6 +26,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Created by josecho on 4/8/18.
@@ -82,7 +86,6 @@ class FetchVideosTask extends AsyncTask<Integer, Void, List<Video>> {
             videosJsonStr = stringBuilder.toString();
             Log.v(LOG_TAG, VIDEOS_STRING + videosJsonStr);
 
-
         } catch (IOException e) {
             Log.e(LOG_TAG, ERROR, e);
             return null;
@@ -108,6 +111,9 @@ class FetchVideosTask extends AsyncTask<Integer, Void, List<Video>> {
         return null;
     }
 
+
+
+
     /**
      * Take the String representing the complete forecast in JSON Format and
      * pull out the data we need to construct the Strings needed for the wireframes.
@@ -118,6 +124,7 @@ class FetchVideosTask extends AsyncTask<Integer, Void, List<Video>> {
     private List<Video> getVideosDataFromJson(String videosJsonStr)
             throws JSONException {
 
+        final String TAG_POPULAR_MOVIE_ID = "id";
         final String TAG_RESULTS = "results";
         final String TAG_VIDEO_ID = "id";
         final String TAG_iso_639_1 = "iso_639_1";
@@ -130,8 +137,11 @@ class FetchVideosTask extends AsyncTask<Integer, Void, List<Video>> {
 
 
         JSONObject videoJson = new JSONObject(videosJsonStr);
+        String popularMovieId = videoJson.getString(TAG_POPULAR_MOVIE_ID);
         JSONArray videoJsonArray = videoJson.optJSONArray(TAG_RESULTS);
         List<Video> videos = new ArrayList<>();
+        // Insert the new popular movies information into the database
+        Vector<ContentValues> cVVector = new Vector<ContentValues>(videoJsonArray.length());
         for (int i = 0; i < videoJsonArray.length(); i++) {
             Video video = new Video();
             JSONObject videoInfo = videoJsonArray.optJSONObject(i);
@@ -145,7 +155,33 @@ class FetchVideosTask extends AsyncTask<Integer, Void, List<Video>> {
                 video.setSize(videoInfo.getString(TAG_SIZE));
                 video.setType(videoInfo.getString(TAG_TYPE));
                 videos.add(video);
+
+                Cursor locationCursor = mContext.getContentResolver().query(
+                        PopularMovieContract.VideosEntry.CONTENT_URI,
+                        new String[]{PopularMovieContract.VideosEntry._ID},
+                        PopularMovieContract.VideosEntry._ID + " = ?",
+                        new String[]{String.valueOf(videoInfo.getString(TAG_VIDEO_ID))},
+                        null);
+                if (!locationCursor.moveToFirst()) {
+                    ContentValues videosValues = new ContentValues();
+                    videosValues.put(PopularMovieContract.VideosEntry._ID, videoInfo.getString(TAG_VIDEO_ID));
+                    videosValues.put(PopularMovieContract.VideosEntry.COLUMN_POPULAR_MOVIE_ID, popularMovieId);
+                    videosValues.put(PopularMovieContract.VideosEntry.COLUMN_ISO_639_1, videoInfo.getString(TAG_iso_639_1));
+                    videosValues.put(PopularMovieContract.VideosEntry.COLUMN_ISO_3166_1, videoInfo.getString(TAG_iso_3166_1));
+                    videosValues.put(PopularMovieContract.VideosEntry.COLUMN_KEY, videoInfo.getString(TAG_KEY));
+                    videosValues.put(PopularMovieContract.VideosEntry.COLUMN_NAME, videoInfo.getString(TAG_NAME));
+                    videosValues.put(PopularMovieContract.VideosEntry.COLUMN_SITE, videoInfo.getString(TAG_SITE));
+                    videosValues.put(PopularMovieContract.VideosEntry.COLUMN_SIZE, videoInfo.getString(TAG_SIZE));
+                    videosValues.put(PopularMovieContract.VideosEntry.COLUMN_TYPE, videoInfo.getString(TAG_TYPE));
+                    cVVector.add(videosValues);
+                    Uri insertedUri= mContext.getContentResolver().insert(
+                            PopularMovieContract.VideosEntry.CONTENT_URI,
+                            videosValues
+                    );
+                    Log.d(LOG_TAG, "VideosEntry insertedUri. " + insertedUri + " Inserted");
+                }
             }
+
         }
         return videos;
     }

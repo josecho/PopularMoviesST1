@@ -29,9 +29,13 @@ import com.udacity.course.popularmoviesst1.app.model.MoviePoster;
  */
 public class PopularMoviesFragment extends Fragment {
 
+
+    private static final String popularMoviesKey = "popularMoviesKey";
+
     private static final String INTERNET_CONNECTION_NOT_PRESENT = "Internet Connection Not Present";
     private final String LOG_TAG = PopularMoviesFragment.class.getSimpleName();
     private ImageAdapter imageAdapter;
+    GridView mGridView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,6 +43,25 @@ public class PopularMoviesFragment extends Fragment {
         // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        // save that list to outState for later
+        int index = mGridView.getFirstVisiblePosition();
+        savedInstanceState.putInt(popularMoviesKey, index);
+    }
+
+    @Override
+    public void onViewStateRestored(Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if(savedInstanceState!=null){
+            final int index = savedInstanceState.getInt(popularMoviesKey);
+            mGridView.smoothScrollToPosition(index);
+            //mGridView.setSelection(index);
+        }
+    }
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -66,7 +89,7 @@ public class PopularMoviesFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         imageAdapter = new ImageAdapter(getActivity(),new MoviePoster[]{});
 
-        GridView mGridView = rootView.findViewById(R.id.movies_gridview);
+        mGridView = rootView.findViewById(R.id.movies_gridview);
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -89,7 +112,7 @@ public class PopularMoviesFragment extends Fragment {
 
     private void updatePopularMovies() {
         if (isNetworkAvailable()) {
-            FetchMoviePosterTask fetchMoviePosterTask = new FetchMoviePosterTask(imageAdapter);
+            FetchMoviePosterTask fetchMoviePosterTask = new FetchMoviePosterTask(getActivity(),imageAdapter);
             SharedPreferences sharedPrefs =
                     PreferenceManager.getDefaultSharedPreferences(getActivity());
             String orderBy = sharedPrefs.getString(

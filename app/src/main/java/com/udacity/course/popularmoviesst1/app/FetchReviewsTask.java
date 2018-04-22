@@ -1,7 +1,9 @@
 package com.udacity.course.popularmoviesst1.app;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.widget.CardView;
@@ -9,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.udacity.course.popularmoviesst1.app.adapter.ReviewAdapter;
+import com.udacity.course.popularmoviesst1.app.data.PopularMovieContract;
 import com.udacity.course.popularmoviesst1.app.model.Review;
 
 import org.json.JSONArray;
@@ -23,6 +26,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Created by josecho on 4/10/18.
@@ -117,6 +121,7 @@ class FetchReviewsTask extends AsyncTask<Integer, Void, List<Review>>{
     private List<Review> getReviewsDataFromJson(String reviesJsonStr)
             throws JSONException {
 
+        final String TAG_POPULAR_MOVIE_ID = "id";
         final String TAG_RESULTS = "results";
         final String TAG_REVIEW_ID = "id";
         final String TAG_AUTOR = "author";
@@ -124,8 +129,11 @@ class FetchReviewsTask extends AsyncTask<Integer, Void, List<Review>>{
         final String TAG_URL = "url";
 
         JSONObject reviewJson = new JSONObject(reviesJsonStr);
+        String popularMovieId = reviewJson.getString(TAG_POPULAR_MOVIE_ID);
         JSONArray reviewJsonArray = reviewJson.optJSONArray(TAG_RESULTS);
         List<Review> reviews = new ArrayList<>();
+        // Insert the new popular movies information into the database
+        Vector<ContentValues> cVVector = new Vector<ContentValues>(reviewJsonArray.length());
         for (int i = 0; i < reviewJsonArray.length(); i++) {
             Review review = new Review();
             JSONObject reviewInfo = reviewJsonArray.optJSONObject(i);
@@ -134,6 +142,28 @@ class FetchReviewsTask extends AsyncTask<Integer, Void, List<Review>>{
                 review.setContent(reviewInfo.getString(TAG_CONTENT));
                 review.setUrl(reviewInfo.getString(TAG_URL));
                 reviews.add(review);
+
+            Cursor locationCursor = mContext.getContentResolver().query(
+                    PopularMovieContract.ReviewsEntry.CONTENT_URI,
+                    new String[]{PopularMovieContract.ReviewsEntry._ID},
+                    PopularMovieContract.ReviewsEntry._ID + " = ?",
+                    new String[]{String.valueOf(reviewInfo.getString(TAG_REVIEW_ID))},
+                    null);
+
+            if (!locationCursor.moveToFirst()) {
+                ContentValues reviesValues = new ContentValues();
+                reviesValues.put(PopularMovieContract.ReviewsEntry._ID, reviewInfo.getString(TAG_REVIEW_ID));
+                reviesValues.put(PopularMovieContract.ReviewsEntry.COLUMN_POPULAR_MOVIE_ID, popularMovieId);
+                reviesValues.put(PopularMovieContract.ReviewsEntry.COLUMN_AUTHOR, reviewInfo.getString(TAG_AUTOR));
+                reviesValues.put(PopularMovieContract.ReviewsEntry.COLUMN_CONTENT, reviewInfo.getString(TAG_CONTENT));
+                reviesValues.put(PopularMovieContract.ReviewsEntry.COLUMN_URL, reviewInfo.getString(TAG_URL));
+                cVVector.add(reviesValues);
+                Uri insertedUri= mContext.getContentResolver().insert(
+                        PopularMovieContract.ReviewsEntry.CONTENT_URI,
+                        reviesValues
+                );
+                Log.d(LOG_TAG, "ReviewsEntry insertedUri. " + insertedUri + " Inserted");
+            }
         }
         return reviews;
     }
