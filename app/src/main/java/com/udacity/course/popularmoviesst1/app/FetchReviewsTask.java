@@ -183,6 +183,7 @@ class FetchReviewsTask extends AsyncTask<Integer, Void, List<Review>>{
                     }
                 }
             }
+
         }
     }
 

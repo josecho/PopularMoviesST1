@@ -52,6 +52,8 @@ public class PopularMoviesFragment extends Fragment {
         savedInstanceState.putInt(popularMoviesKey, index);
     }
 
+    //https://stackoverflow.com/questions/8619794/maintain-scroll-position-of-gridview-through-screen-rotation/8619862#8619862
+    //this worked!!!! gridview.smoothScrollToPosition(int index)---> will not work when there is lazy loading.
     @Override
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);

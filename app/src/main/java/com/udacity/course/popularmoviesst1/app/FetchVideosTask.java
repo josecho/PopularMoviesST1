@@ -178,7 +178,6 @@ class FetchVideosTask extends AsyncTask<Integer, Void, List<Video>> {
                             PopularMovieContract.VideosEntry.CONTENT_URI,
                             videosValues
                     );
-                    Log.d(LOG_TAG, "VideosEntry insertedUri. " + insertedUri + " Inserted");
                 }
             }
 

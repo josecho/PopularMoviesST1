@@ -72,15 +72,16 @@ public class DetailActivity extends AppCompatActivity {
                     .add(R.id.container, new DetailFragment())
                     .commit();
         }
-
     }
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         mScrollView = (ScrollView) findViewById(R.id.nc_view);
-        super.onSaveInstanceState(savedInstanceState);
+
         savedInstanceState.putIntArray("ARTICLE_SCROLL_POSITION",
                 new int[]{ mScrollView.getScrollX(), mScrollView.getScrollY()});
+
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
