@@ -50,18 +50,8 @@ public class PopularMoviesFragment extends Fragment {
         // save that list to outState for later
         int index = mGridView.getFirstVisiblePosition();
         savedInstanceState.putInt(popularMoviesKey, index);
-    }
-
-    //https://stackoverflow.com/questions/8619794/maintain-scroll-position-of-gridview-through-screen-rotation/8619862#8619862
-    //this worked!!!! gridview.smoothScrollToPosition(int index)---> will not work when there is lazy loading.
-    @Override
-    public void onViewStateRestored(Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        if(savedInstanceState!=null){
-            final int index = savedInstanceState.getInt(popularMoviesKey);
-            mGridView.smoothScrollToPosition(index);
-            //mGridView.setSelection(index);
-        }
+        //savedInstanceState.putParcelable("gridview", mGridView.onSaveInstanceState());
+        savedInstanceState.putSerializable("saveMovies", imageAdapter.getItems());
     }
 
 
@@ -88,22 +78,33 @@ public class PopularMoviesFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        imageAdapter = new ImageAdapter(getActivity(),new MoviePoster[]{});
+        if (savedInstanceState != null) {
+            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            MoviePoster[] movies = (MoviePoster [])savedInstanceState.getSerializable("saveMovies");
+            imageAdapter = new ImageAdapter(getActivity(), movies);
+            final int index = savedInstanceState.getInt(popularMoviesKey);
+            mGridView = rootView.findViewById(R.id.movies_gridview);
+            mGridView.smoothScrollToPosition(index);
+            mGridView.setAdapter(imageAdapter);
+            return rootView;
 
-        mGridView = rootView.findViewById(R.id.movies_gridview);
-        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                MoviePoster moviePoster = (MoviePoster) imageAdapter.getItem(position);
-                Intent intent = new Intent(getActivity(), DetailActivity.class)
-                        .putExtra(getResources().getString(R.string.movie_poster), moviePoster);
-                startActivity(intent);
-            }
-        });
-        mGridView.setAdapter(imageAdapter);
-        
-        return rootView;
+        } else {
+
+            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            imageAdapter = new ImageAdapter(getActivity(), new MoviePoster[]{});
+            mGridView = rootView.findViewById(R.id.movies_gridview);
+            mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    MoviePoster moviePoster = (MoviePoster) imageAdapter.getItem(position);
+                    Intent intent = new Intent(getActivity(), DetailActivity.class)
+                            .putExtra(getResources().getString(R.string.movie_poster), moviePoster);
+                    startActivity(intent);
+                }
+            });
+            mGridView.setAdapter(imageAdapter);
+            return rootView;
+        }
     }
 
     @Override

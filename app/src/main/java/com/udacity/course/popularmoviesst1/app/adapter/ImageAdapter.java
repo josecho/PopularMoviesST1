@@ -40,6 +40,10 @@ public class ImageAdapter extends BaseAdapter {
         return moviePoster[position];
     }
 
+    public MoviePoster[] getItems() {
+        return moviePoster;
+    }
+
     @Override
     public long getItemId(int position) {
         return 0;
