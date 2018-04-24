@@ -82,8 +82,17 @@ public class PopularMoviesFragment extends Fragment {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             MoviePoster[] movies = (MoviePoster [])savedInstanceState.getSerializable("saveMovies");
             imageAdapter = new ImageAdapter(getActivity(), movies);
-            final int index = savedInstanceState.getInt(popularMoviesKey);
             mGridView = rootView.findViewById(R.id.movies_gridview);
+            mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    MoviePoster moviePoster = (MoviePoster) imageAdapter.getItem(position);
+                    Intent intent = new Intent(getActivity(), DetailActivity.class)
+                            .putExtra(getResources().getString(R.string.movie_poster), moviePoster);
+                    startActivity(intent);
+                }
+            });
+            final int index = savedInstanceState.getInt(popularMoviesKey);
             mGridView.smoothScrollToPosition(index);
             mGridView.setAdapter(imageAdapter);
             return rootView;
