@@ -60,8 +60,6 @@ public class DetailActivity extends AppCompatActivity {
 
     private static final String INTERNET_CONNECTION_NOT_PRESENT = "Internet Connection Not Present";
 
-    ScrollView mScrollView;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,29 +74,13 @@ public class DetailActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
-        mScrollView = (ScrollView) findViewById(R.id.nc_view);
-
-        savedInstanceState.putIntArray("ARTICLE_SCROLL_POSITION",
-                new int[]{ mScrollView.getScrollX(), mScrollView.getScrollY()});
-
         super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        mScrollView = (ScrollView) findViewById(R.id.nc_view);
-        if (savedInstanceState != null) {
-            final int[] position = savedInstanceState.getIntArray("ARTICLE_SCROLL_POSITION");
-            if (position != null)
-                mScrollView.post(new Runnable() {
-                    public void run() {
-                        mScrollView.scrollTo(position[0], position[1]);
-                    }
-                });
-        }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -121,10 +103,11 @@ public class DetailActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class DetailFragment extends Fragment {
+    public static class DetailFragment extends Fragment implements OnTaskCompleted {
 
         private static final String LOG_TAG = DetailFragment.class.getSimpleName();
 
@@ -140,10 +123,36 @@ public class DetailActivity extends AppCompatActivity {
         private ReviewAdapter reviewAdapter;
         private CardView cardViewReviews;
 
+        ScrollView mScrollView;
+
+        int[] position;
+
         public DetailFragment() {
             setHasOptionsMenu(true);
         }
 
+        @Override
+        public void onSaveInstanceState(Bundle savedInstanceState) {
+            mScrollView = getActivity().findViewById(R.id.nc_view);
+            savedInstanceState.putIntArray("ARTICLE_SCROLL_POSITION",
+                    new int[]{mScrollView.getScrollX(), mScrollView.getScrollY()});
+            super.onSaveInstanceState(savedInstanceState);
+        }
+
+        @Override
+        public void onTaskCompleted() {
+            //final int[] position = savedInstanceState.getIntArray("ARTICLE_SCROLL_POSITION");
+            //move the lines from 93 to 99 into onTaskCompleted.
+            if (position != null) {
+                mScrollView = getActivity().findViewById(R.id.nc_view);
+                Log.d(LOG_TAG, "onTaskCompleted. mScrollView mScrollView " + mScrollView);
+                mScrollView.post(new Runnable() {
+                    public void run() {
+                        mScrollView.scrollTo(position[0], position[1]);
+                    }
+                });
+            }
+        }
 
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -153,7 +162,11 @@ public class DetailActivity extends AppCompatActivity {
             Intent intent = getActivity().getIntent();
 
             if (intent != null && intent.hasExtra(getResources().getString(R.string.movie_poster))) {
+                if (savedInstanceState != null) {
+                    position = savedInstanceState.getIntArray("ARTICLE_SCROLL_POSITION");
+                    Log.d(LOG_TAG, "position. position position " + position);
 
+                }
                 TextView tvOriginalTitle = rootView.findViewById(R.id.tv_original_title);
                 ImageView ivMoviePoster = rootView.findViewById(R.id.iv_movie_poster);
                 TextView tvReleaseDate = rootView.findViewById(R.id.tv_release_date);
@@ -171,15 +184,15 @@ public class DetailActivity extends AppCompatActivity {
                         null,   // Values for the "where" clause
                         null    // sort order
                 );
-                if(cursor.moveToFirst()){
+                if (cursor.moveToFirst()) {
                     String favorite = cursor.getString(cursor.getColumnIndex(PopularMovieContract.PopularMovieEntry.COLUMN_FAVORITE));
                     moviePoster.setFavorite(Integer.valueOf(favorite));
                     adaptVideoButton(videoButton);
                 }
 
-                if((moviePoster.getOriginalTitle().isEmpty())){
+                if ((moviePoster.getOriginalTitle().isEmpty())) {
                     tvOriginalTitle.setText(R.string.no_title_found);
-                }else{
+                } else {
                     tvOriginalTitle.setText(moviePoster.getOriginalTitle());
                 }
                 //ICONS: https://material.io/guidelines/resources/sticker-sheets-icons.html#sticker-sheets-icons-system-icons
@@ -188,19 +201,19 @@ public class DetailActivity extends AppCompatActivity {
                         .error(R.drawable.ic_error_black_24dp)
                         .placeholder(R.drawable.ic_search_black_24dp)
                         .into(ivMoviePoster);
-                if((moviePoster.getReleaseDate().isEmpty())){
+                if ((moviePoster.getReleaseDate().isEmpty())) {
                     tvReleaseDate.setText(R.string.no_title_found);
-                }else{
-                    tvReleaseDate.setText(moviePoster.getReleaseDate().substring(0,4));
+                } else {
+                    tvReleaseDate.setText(moviePoster.getReleaseDate().substring(0, 4));
                 }
                 if (moviePoster.getOverview().isEmpty()) {
                     tvOverView.setText(getResources().getString(R.string.no_synopsis_found));
-                }else{
+                } else {
                     tvOverView.setText(moviePoster.getOverview());
                 }
                 if (moviePoster.getVoteAverage().isEmpty()) {
                     tvVoteAverage.setText(getResources().getString(R.string.no_average_found));
-                }else{
+                } else {
                     tvVoteAverage.setText(moviePoster.getVoteAverage());
                 }
 
@@ -230,7 +243,7 @@ public class DetailActivity extends AppCompatActivity {
         };
 
         private void adaptVideoButton(Button videoButton) {
-            if(moviePoster.getFavorite()==1) {
+            if (moviePoster.getFavorite() == 1) {
                 videoButton.setTextColor(YELLOW);
                 videoButton.setText("Is favorite");
                 ContentValues updatedValues = new ContentValues();
@@ -242,7 +255,7 @@ public class DetailActivity extends AppCompatActivity {
                 Log.d(LOG_TAG, "update:  " + count);
                 moviePoster.setFavorite(1);
 
-            }else{
+            } else {
                 videoButton.setTextColor(RED);
                 videoButton.setText("MARK AS FAVORITE");
                 ContentValues updatedValues = new ContentValues();
@@ -258,7 +271,7 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         private void setVideoButton(Button videoButton) {
-            if(moviePoster.getFavorite()==0) {
+            if (moviePoster.getFavorite() == 0) {
                 videoButton.setTextColor(YELLOW);
                 videoButton.setText("Is favorite");
                 ContentValues updatedValues = new ContentValues();
@@ -270,7 +283,7 @@ public class DetailActivity extends AppCompatActivity {
                 Log.d(LOG_TAG, "update:  " + count);
                 moviePoster.setFavorite(1);
 
-            }else{
+            } else {
                 videoButton.setTextColor(RED);
                 videoButton.setText("MARK AS FAVORITE");
                 ContentValues updatedValues = new ContentValues();
@@ -299,7 +312,7 @@ public class DetailActivity extends AppCompatActivity {
 
             // Attach an intent to this ShareActionProvider.  You can update this at any time,
             // like when the user selects a new piece of data they might like to share.
-            if (mShareActionProvider != null ) {
+            if (mShareActionProvider != null) {
                 mShareActionProvider.setShareIntent(createShareMoviePosterIntent());
             } else {
                 Log.d(LOG_TAG, "Share Action Provider is null?");
@@ -323,12 +336,12 @@ public class DetailActivity extends AppCompatActivity {
 
         private void updateVideos() {
             if (isNetworkAvailable()) {
-                FetchVideosTask fetchVideosTask = new FetchVideosTask(getActivity(),videoAdapter);
+                FetchVideosTask fetchVideosTask = new FetchVideosTask(getActivity(), videoAdapter);
                 fetchVideosTask.execute(moviePoster.getMoviePosterId());
-                FetchReviewsTask fetchReviewsTask = new FetchReviewsTask(getActivity(),reviewAdapter);
+                FetchReviewsTask fetchReviewsTask = new FetchReviewsTask(getActivity(), reviewAdapter, DetailFragment.this);
                 fetchReviewsTask.execute(moviePoster.getMoviePosterId());
 
-            }else{
+            } else {
                 Toast.makeText(getActivity(), INTERNET_CONNECTION_NOT_PRESENT, Toast.LENGTH_LONG).show();
             }
         }
@@ -345,6 +358,7 @@ public class DetailActivity extends AppCompatActivity {
                 return false;
             }
         }
+
 
     }
 }

@@ -43,9 +43,12 @@ class FetchReviewsTask extends AsyncTask<Integer, Void, List<Review>>{
     private final Context mContext;
     private final ReviewAdapter reviewAdapter;
 
-    public FetchReviewsTask(Context context, ReviewAdapter reviewAdapter) {
+    private OnTaskCompleted listener;
+
+    public FetchReviewsTask(Context context, ReviewAdapter reviewAdapter, OnTaskCompleted listener) {
         this.mContext = context;
         this.reviewAdapter = reviewAdapter;
+        this.listener = listener;
     }
 
     @Override
@@ -182,12 +185,8 @@ class FetchReviewsTask extends AsyncTask<Integer, Void, List<Review>>{
                         reviewAdapter.add(review);
                     }
                 }
+                listener.onTaskCompleted();
             }
-
         }
     }
-
-
-
-
 }
